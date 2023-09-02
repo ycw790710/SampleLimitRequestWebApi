@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace SampleLimitRequestWebApi.RequestRateLimits;
 
@@ -12,10 +11,9 @@ public class RequestRateLimitStatusCacheService : IRequestRateLimitStatusCacheSe
 
     private IReadOnlyList<RequestRateLimitStatusContainerTypeInfo> _containerTypeInfos;
     private IReadOnlyList<RequestRateLimitStatusPerTimeUnitInfo> _perTimeUnitInfos;
+    private readonly object _lockStatusContainerStore;
     private readonly IReadOnlyDictionary<RequestRateLimitStatusContainerType, Dictionary<string, RequestRateLimitStatusContainer>> _statusContainerStore;
 
-
-    private RequestRateLimitStatus? _status;
     private string? _statusJson;
 
     public RequestRateLimitStatusCacheService()
@@ -24,9 +22,9 @@ public class RequestRateLimitStatusCacheService : IRequestRateLimitStatusCacheSe
 
         _containerTypeInfos = GetContainerTypeInfos();
         _perTimeUnitInfos = GetPerTimeUnitInfos();
+        _lockStatusContainerStore = new();
         _statusContainerStore = GetStatusContainerStore();
 
-        _status = null;
         _statusJson = null;
     }
 
@@ -69,53 +67,27 @@ public class RequestRateLimitStatusCacheService : IRequestRateLimitStatusCacheSe
     {
         var updatedTime = DateTime.UtcNow;
 
-        while (_waitingStatusContainers.TryPeek(out var info) && info.Container.UpdatedTime <= updatedTime &&
-            _waitingStatusContainers.TryDequeue(out info))
+        lock (_lockStatusContainerStore)
         {
-            if (info.ActionType == RequestRateLimitStatusContainerActionType.Update)
-                _statusContainerStore[info.Container.Type][info.Container.Key] = info.Container;
-            if (info.ActionType == RequestRateLimitStatusContainerActionType.Remove)
-                _statusContainerStore[info.Container.Type].Remove(info.Container.Key);
-        }
-
-        var cloneContainerTypesItemContainers =
-            new Dictionary<RequestRateLimitStatusContainerType, IReadOnlyList<RequestRateLimitStatusContainer>>();
-        foreach (var statusCache in _statusContainerStore)
-        {
-            List<RequestRateLimitStatusContainer> requestRateLimitStatusContainers = new();
-            cloneContainerTypesItemContainers[statusCache.Key] = requestRateLimitStatusContainers;
-            foreach (var kvp in statusCache.Value)
+            while (_waitingStatusContainers.TryPeek(out var info) && info.Container.UpdatedTime <= updatedTime &&
+                _waitingStatusContainers.TryDequeue(out info))
             {
-                RequestRateLimitStatusContainer container = kvp.Value;
-                if (container == null || container.Items == null)
-                    continue;
-
-                List<RequestRateLimitStatusContainerItem> cloneItems = new();
-                foreach (var item in container.Items)
-                {
-                    if (item == null)
-                        continue;
-
-                    RequestRateLimitStatusContainerItem cloneItem = new(
-                        item.PerTimeUnit, item.LimitTimes, item.Capacity);
-                    cloneItems.Add(cloneItem);
-                }
-                RequestRateLimitStatusContainer cloneContainer = new(
-                    container.Key, container.Type, cloneItems, container.UpdatedTime);
-                requestRateLimitStatusContainers.Add(cloneContainer);
+                if (info.ActionType == RequestRateLimitStatusContainerActionType.Update)
+                    _statusContainerStore[info.Container.Type][info.Container.Key] = info.Container;
+                if (info.ActionType == RequestRateLimitStatusContainerActionType.Remove)
+                    _statusContainerStore[info.Container.Type].Remove(info.Container.Key);
             }
+
+            var refContainerTypesItemContainers =
+                new Dictionary<RequestRateLimitStatusContainerType, IReadOnlyCollection<RequestRateLimitStatusContainer>>();
+            foreach (var statusCache in _statusContainerStore)
+                refContainerTypesItemContainers[statusCache.Key] = statusCache.Value.Values;
+            var requestRateLimitStatus = new RequestRateLimitStatus(_containerTypeInfos,
+                _perTimeUnitInfos, updatedTime, refContainerTypesItemContainers);
+
+            var statusJson = JsonSerializer.Serialize(requestRateLimitStatus);
+            _statusJson = statusJson;
         }
-
-        RequestRateLimitStatus requestRateLimitStatus = new(_containerTypeInfos,
-            _perTimeUnitInfos, updatedTime, cloneContainerTypesItemContainers);
-        _status = requestRateLimitStatus;
-
-        _statusJson = JsonSerializer.Serialize(requestRateLimitStatus);
-    }
-
-    public RequestRateLimitStatus? GetStatus()
-    {
-        return _status;
     }
 
     public string? GetStatusJson()

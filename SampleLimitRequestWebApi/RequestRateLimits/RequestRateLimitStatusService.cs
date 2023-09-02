@@ -1,6 +1,4 @@
-﻿using SampleLimitRequestWebApi.RequestRateLimits.Dtos;
-
-namespace SampleLimitRequestWebApi.RequestRateLimits;
+﻿namespace SampleLimitRequestWebApi.RequestRateLimits;
 
 public class RequestRateLimitStatusService : IRequestRateLimitStatusService
 {
@@ -18,11 +16,6 @@ public class RequestRateLimitStatusService : IRequestRateLimitStatusService
     {
         _requestRateLimitCacheService.RemoveExpired();
         _requestRateLimitStatusCacheService.UpdateStatuses();
-    }
-
-    public RequestRateLimitStatus? GetStatus()
-    {
-        return _requestRateLimitStatusCacheService.GetStatus();
     }
 
     public string? GetStatusJson()
