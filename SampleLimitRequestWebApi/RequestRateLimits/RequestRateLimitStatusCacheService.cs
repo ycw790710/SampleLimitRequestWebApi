@@ -1,6 +1,5 @@
 ﻿using SampleLimitRequestWebApi.RequestRateLimits.Dtos;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Text.Json;
 
 namespace SampleLimitRequestWebApi.RequestRateLimits;
@@ -32,8 +31,8 @@ public class RequestRateLimitStatusCacheService : IRequestRateLimitStatusCacheSe
     {
         List<RequestRateLimitStatusContainerTypeInfo> list = new()
         {
-            new(RequestRateLimitStatusContainerType.GlobalController, "Global Controller速率限制", "向Controller的所有Actions的所有Request的速率限制"),
-            new(RequestRateLimitStatusContainerType.GlobalAction, "Global Action速率限制", "向Action的所有Request的速率限制"),
+            new(RequestRateLimitStatusContainerType.GlobalController, "Global Controller速率限制", "包含其所有的Requests"),
+            new(RequestRateLimitStatusContainerType.GlobalAction, "Global Action速率限制", "包含其所有的Requests"),
             new(RequestRateLimitStatusContainerType.Ip, "Ip速率限制", ""),
             new(RequestRateLimitStatusContainerType.User, "User速率限制", "")
         };
@@ -70,16 +69,22 @@ public class RequestRateLimitStatusCacheService : IRequestRateLimitStatusCacheSe
             while (_waitingStatusContainers.TryPeek(out var info) && info.Container.UpdatedTime <= updatedTime &&
                 _waitingStatusContainers.TryDequeue(out info))
             {
-                if (info.ActionType == RequestRateLimitStatusContainerActionType.Update)
+                var preContainerUpdatedTime = DateTime.MinValue;
+                if (_statusContainerStore[info.Container.Type].ContainsKey(info.Container.Key) &&
+                    _statusContainerStore[info.Container.Type][info.Container.Key] != null)
+                    preContainerUpdatedTime = _statusContainerStore[info.Container.Type][info.Container.Key].UpdatedTime;
+                if (info.ActionType == RequestRateLimitStatusContainerActionType.Update &&
+                    info.Container.UpdatedTime > preContainerUpdatedTime)
                     _statusContainerStore[info.Container.Type][info.Container.Key] = info.Container;
-                if (info.ActionType == RequestRateLimitStatusContainerActionType.Remove)
+                if (info.ActionType == RequestRateLimitStatusContainerActionType.Remove &&
+                    info.Container.UpdatedTime > preContainerUpdatedTime)
                     _statusContainerStore[info.Container.Type].Remove(info.Container.Key);
             }
 
             var refContainerTypesItemContainers =
-                new Dictionary<RequestRateLimitStatusContainerType, IReadOnlyCollection<RequestRateLimitStatusContainer>>();
+                new Dictionary<int, IReadOnlyCollection<RequestRateLimitStatusContainer>>();
             foreach (var statusCache in _statusContainerStore)
-                refContainerTypesItemContainers[statusCache.Key] = statusCache.Value.Values;
+                refContainerTypesItemContainers[(int)statusCache.Key] = statusCache.Value.Values;
             var requestRateLimitStatus = new RequestRateLimitStatus(_containerTypeInfos,
                 _perTimeUnitInfos, updatedTime, refContainerTypesItemContainers);
 
