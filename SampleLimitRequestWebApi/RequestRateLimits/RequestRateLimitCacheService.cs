@@ -3,7 +3,6 @@ using SampleLimitRequestWebApi.CodeExtensions;
 using SampleLimitRequestWebApi.RequestRateLimits.Components;
 using SampleLimitRequestWebApi.RequestRateLimits.Dtos;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Net;
 
 namespace SampleLimitRequestWebApi.RequestRateLimits;
@@ -75,22 +74,24 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
         var lock_waitingExpiredQueue = _lock_waitingExpiredQueues[cacheIndex];
         var waitingExpiredQueue = _waitingExpiredQueues[cacheIndex];
         while (waitingExpiredQueue.Count > 0 &&
-            waitingExpiredQueue.TryPeek(out var container) &&
-            container.ExpiredTime < GlobalTimer.NowTimeSpan())
+            waitingExpiredQueue.TryPeek(out var expiredInfo) &&
+            expiredInfo.ExpiredTime < GlobalTimer.NowTimeSpan())
         {
             var got = false;
             lock (lock_waitingExpiredQueue)
             {
                 if (waitingExpiredQueue.Count > 0 &&
-                    waitingExpiredQueue.TryPeek(out container) &&
-                    container.ExpiredTime < GlobalTimer.NowTimeSpan() &&
-                    waitingExpiredQueue.TryDequeue(out container))
+                    waitingExpiredQueue.TryPeek(out expiredInfo) &&
+                    expiredInfo.ExpiredTime < GlobalTimer.NowTimeSpan() &&
+                    waitingExpiredQueue.TryDequeue(out expiredInfo))
                     got = true;
             }
             if (got)
             {
-                cache.TryRemove(container.key, out var rm);
-                if (rm != null)
+                if (cache.TryGetValue(expiredInfo.key, out var rm) &&
+                    rm.ExpiredTime < GlobalTimer.NowTimeSpan() &&
+                    cache.TryRemove(expiredInfo.key, out rm) &&
+                    rm != null)
                 {
                     AddRemovingToWaitingSendingStatusContainers(requestRateLimitType, rm);
                 }
@@ -270,33 +271,7 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
     {
         foreach (var requestRateLimitType in Enum.GetValues<RequestRateLimitType>())
         {
-            var cacheIndex = GetCacheIndex(requestRateLimitType);
-
-            var cache = _caches[cacheIndex];
-            var lock_waitingExpiredQueue = _lock_waitingExpiredQueues[cacheIndex];
-            var waitingExpiredQueue = _waitingExpiredQueues[cacheIndex];
-            while (waitingExpiredQueue.Count > 0 &&
-                waitingExpiredQueue.TryPeek(out var container) &&
-                container.ExpiredTime < GlobalTimer.NowTimeSpan())
-            {
-                var got = false;
-                lock (lock_waitingExpiredQueue)
-                {
-                    if (waitingExpiredQueue.Count > 0 &&
-                        waitingExpiredQueue.TryPeek(out container) &&
-                        container.ExpiredTime < GlobalTimer.NowTimeSpan() &&
-                        waitingExpiredQueue.TryDequeue(out container))
-                        got = true;
-                }
-                if (got)
-                {
-                    cache.TryRemove(container.key, out var rm);
-                    if (rm != null)
-                    {
-                        AddRemovingToWaitingSendingStatusContainers(requestRateLimitType, rm);
-                    }
-                }
-            }
+            RemoveExpired(requestRateLimitType);
         }
     }
 
@@ -358,30 +333,27 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
             if (expiredTime > ExpiredTime)
                 ExpiredTime = expiredTime;
 
-            Debug.WriteLine($"RequestRateLimitPerTimeUnit: {perTimeUnit}");//TODO: for test
-            Debug.WriteLine($"Capacity/LimitTimes: {capacity}/{limitTimes}");//TODO: for test
-
             return valid;
         }
 
         private void RemoveExpiredItem()
         {
             while (_waiting_expiredItems.Count > 0 &&
-                _waiting_expiredItems.TryPeek(out var item) &&
-                item.expiredTime < GlobalTimer.NowTimeSpan())
+                _waiting_expiredItems.TryPeek(out var expiredInfo) &&
+                expiredInfo.expiredTime < GlobalTimer.NowTimeSpan())
             {
                 var got = false;
                 lock (_lockWaitingExpiredItems)
                 {
                     if (_waiting_expiredItems.Count > 0 &&
-                        _waiting_expiredItems.TryPeek(out item) &&
-                        item.expiredTime < GlobalTimer.NowTimeSpan() &&
-                        _waiting_expiredItems.TryDequeue(out item))
+                        _waiting_expiredItems.TryPeek(out expiredInfo) &&
+                        expiredInfo.expiredTime < GlobalTimer.NowTimeSpan() &&
+                        _waiting_expiredItems.TryDequeue(out expiredInfo))
                         got = true;
                 }
                 if (got)
                 {
-                    var idx = (int)item.key;
+                    var idx = (int)expiredInfo.key;
                     var lockItem = _lockItems[idx];
                     lock (lockItem)
                     {

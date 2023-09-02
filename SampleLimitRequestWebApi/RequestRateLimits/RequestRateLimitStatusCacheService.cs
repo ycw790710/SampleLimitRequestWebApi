@@ -58,8 +58,6 @@ public class RequestRateLimitStatusCacheService : IRequestRateLimitStatusCacheSe
 
     public void SendContainer(RequestRateLimitStatusContainerActionType actionType, RequestRateLimitStatusContainer container)
     {
-        if (actionType == RequestRateLimitStatusContainerActionType.Remove)
-            Debug.WriteLine("SendContainer Remove");
         _waitingStatusContainers.Enqueue((actionType, container));
     }
 
