@@ -34,7 +34,7 @@ public class RequestRateLimitStatusCacheBackgroundService : BackgroundService
                     _logger.LogError(ex, "執行'更新[Request速率限制]的狀態Cache'失敗");
                 }
 
-                await Task.Delay(1000, cancellationToken);
+                await Task.Delay(200, cancellationToken);
             }
         }
     }

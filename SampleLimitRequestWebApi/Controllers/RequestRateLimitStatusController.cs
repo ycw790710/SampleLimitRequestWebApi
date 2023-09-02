@@ -16,8 +16,13 @@ public class RequestRateLimitStatusController : DefaultControllerBase
     [HttpPost]
     public ActionResult<RequestRateLimitStatus> GetStatus()
     {
-        var status = _requestRateLimitStatusService.GetStatus();
-        return Ok(status);
+        var json = _requestRateLimitStatusService.GetStatusJson();
+        return new ContentResult
+        {
+            Content = json,
+            ContentType = "application/json",
+            StatusCode = 200
+        };
     }
 
 }

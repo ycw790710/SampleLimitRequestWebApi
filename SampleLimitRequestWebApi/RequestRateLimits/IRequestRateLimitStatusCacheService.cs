@@ -7,4 +7,5 @@ public interface IRequestRateLimitStatusCacheService
     void SendContainer(RequestRateLimitStatusContainerActionType actionType, RequestRateLimitStatusContainer container);
     void UpdateStatuses();
     RequestRateLimitStatus? GetStatus();
+    string? GetStatusJson();
 }

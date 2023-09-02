@@ -1,6 +1,8 @@
 ﻿using SampleLimitRequestWebApi.RequestRateLimits.Dtos;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace SampleLimitRequestWebApi.RequestRateLimits;
 
@@ -14,6 +16,7 @@ public class RequestRateLimitStatusCacheService : IRequestRateLimitStatusCacheSe
 
 
     private RequestRateLimitStatus? _status;
+    private string? _statusJson;
 
     public RequestRateLimitStatusCacheService()
     {
@@ -24,6 +27,7 @@ public class RequestRateLimitStatusCacheService : IRequestRateLimitStatusCacheSe
         _statusContainerStore = GetStatusContainerStore();
 
         _status = null;
+        _statusJson = null;
     }
 
     private IReadOnlyList<RequestRateLimitStatusContainerTypeInfo> GetContainerTypeInfos()
@@ -105,11 +109,18 @@ public class RequestRateLimitStatusCacheService : IRequestRateLimitStatusCacheSe
         RequestRateLimitStatus requestRateLimitStatus = new(_containerTypeInfos,
             _perTimeUnitInfos, updatedTime, cloneContainerTypesItemContainers);
         _status = requestRateLimitStatus;
+
+        _statusJson = JsonSerializer.Serialize(requestRateLimitStatus);
     }
 
     public RequestRateLimitStatus? GetStatus()
     {
         return _status;
+    }
+
+    public string? GetStatusJson()
+    {
+        return _statusJson;
     }
 
 }

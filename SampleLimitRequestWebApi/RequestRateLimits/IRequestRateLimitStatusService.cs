@@ -6,4 +6,5 @@ public interface IRequestRateLimitStatusService
 {
     RequestRateLimitStatus? GetStatus();
     void UpdateStatuses();
+    string? GetStatusJson();
 }

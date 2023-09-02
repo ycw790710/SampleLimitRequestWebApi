@@ -22,7 +22,11 @@ public class RequestRateLimitStatusService : IRequestRateLimitStatusService
 
     public RequestRateLimitStatus? GetStatus()
     {
-        UpdateStatuses();
         return _requestRateLimitStatusCacheService.GetStatus();
+    }
+
+    public string? GetStatusJson()
+    {
+        return _requestRateLimitStatusCacheService.GetStatusJson();
     }
 }
