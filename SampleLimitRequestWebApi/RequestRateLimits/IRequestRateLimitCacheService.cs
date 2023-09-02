@@ -7,4 +7,5 @@ public interface IRequestRateLimitCacheService
 {
     bool Valid(ControllerActionDescriptor controllerActionDescriptor, IPAddress remoteIpAddress);
     bool ValidUser(ControllerActionDescriptor controllerActionDescriptor, long userId);
+    void RemoveExpired();
 }

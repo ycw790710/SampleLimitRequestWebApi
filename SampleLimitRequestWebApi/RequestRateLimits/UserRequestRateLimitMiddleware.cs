@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc.Controllers;
-using System.Diagnostics;
 
 namespace SampleLimitRequestWebApi.RequestRateLimits;
 
@@ -17,14 +16,16 @@ public class UserRequestRateLimitMiddleware
         var requestAborted = context.RequestAborted;
         if (requestAborted.IsCancellationRequested)
             return;
-        Debug.WriteLine("UserRequestRateLimitMiddleware");
 
         ControllerActionDescriptor? controllerActionDescriptor =
             context.GetEndpoint()?.Metadata.GetMetadata<ControllerActionDescriptor>();
 
         var cancellationToken = context.RequestAborted;
 
-        int? userId = 1;//TODO: const user id
+
+        int? userId = null;
+        if (int.TryParse(context.User.Identity?.Name, out var parsedUserId))
+            userId = parsedUserId;
 
         var isUserRequestOverLimit =
             _requestRateLimitService.IsUserRequestOverLimit(controllerActionDescriptor, userId, cancellationToken);

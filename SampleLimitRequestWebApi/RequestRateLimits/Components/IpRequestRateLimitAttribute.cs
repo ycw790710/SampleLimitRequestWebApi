@@ -20,8 +20,8 @@ public class IpRequestRateLimitAttribute : Attribute, IRequestRateLimitAttribute
         PerTimeUnit = inputPerTimeUnit;
     }
 
-    public string GetKey(IPAddress iPAddress)
+    public string GetKey(string controllerName, string actionName, IPAddress iPAddress)
     {
-        return iPAddress.ToString();
+        return $"[{iPAddress}] [{controllerName}/{actionName}]";
     }
 }

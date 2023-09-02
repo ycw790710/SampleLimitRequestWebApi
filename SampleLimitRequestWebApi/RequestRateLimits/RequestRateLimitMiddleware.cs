@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc.Controllers;
-using System.Diagnostics;
 
 namespace SampleLimitRequestWebApi.RequestRateLimits;
 
@@ -17,7 +16,6 @@ public class RequestRateLimitMiddleware
         var requestAborted = context.RequestAborted;
         if (requestAborted.IsCancellationRequested)
             return;
-        Debug.WriteLine("RequestRateLimitMiddleware");
 
         ControllerActionDescriptor? controllerActionDescriptor =
             context.GetEndpoint()?.Metadata.GetMetadata<ControllerActionDescriptor>();

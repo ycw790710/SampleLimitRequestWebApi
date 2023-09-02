@@ -20,6 +20,6 @@ public class GlobalRequestRateLimitAttribute : Attribute, IRequestRateLimitAttri
 
     public string GetKey(string controllerName, string actionName)
     {
-        return controllerName + actionName;
+        return $"[{controllerName}/{actionName}]";
     }
 }

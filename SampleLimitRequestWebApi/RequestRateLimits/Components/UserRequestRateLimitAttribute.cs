@@ -18,8 +18,8 @@ public class UserRequestRateLimitAttribute : Attribute, IRequestRateLimitAttribu
         PerTimeUnit = inputPerTimeUnit;
     }
 
-    public string GetKey(long userId)
+    public string GetKey(string controllerName, string actionName, long userId)
     {
-        return userId.ToString();
+        return $"[{userId}] [{controllerName}/{actionName}]";
     }
 }
