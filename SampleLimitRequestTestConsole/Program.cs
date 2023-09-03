@@ -35,7 +35,7 @@ namespace SampleLimitRequestTestConsole
                 config.BasePath = _basePath;
                 config.DefaultHeaders.Add("Authorization", "Bearer " + GetToken(1));
                 var apiInstance = new SampleApi(config);
-                var data = "data_example";  // string? |  (optional) 
+                var data = "data_example";
 
                 Console.WriteLine($"{nameof(apiInstance.ApiSampleGetLimitGlobal5PreSecondUser3PreSecondGetAsync)}");
                 for (int i = 0; i < 4; i++)

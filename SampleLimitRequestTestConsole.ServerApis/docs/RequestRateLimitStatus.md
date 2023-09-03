@@ -5,7 +5,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **ContainerTypeInfos** | [**List&lt;RequestRateLimitStatusContainerTypeInfo&gt;**](RequestRateLimitStatusContainerTypeInfo.md) |  | [optional] [readonly] 
-**PerUnitInfos** | [**List&lt;RequestRateLimitStatusPerTimeUnitInfo&gt;**](RequestRateLimitStatusPerTimeUnitInfo.md) |  | [optional] 
+**PerUnitInfos** | [**Dictionary&lt;string, RequestRateLimitStatusPerTimeUnitInfo&gt;**](RequestRateLimitStatusPerTimeUnitInfo.md) |  | [optional] 
 **UpdatedTime** | **DateTime** |  | [optional] 
 **ContainerTypesContainers** | **Dictionary&lt;string, List&lt;RequestRateLimitStatusContainer&gt;&gt;** |  | [optional] 
 

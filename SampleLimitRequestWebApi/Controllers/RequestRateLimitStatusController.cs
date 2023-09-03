@@ -23,8 +23,17 @@ public class RequestRateLimitStatusController : DefaultControllerBase
         //    ContentType = "application/json",
         //    StatusCode = 200
         //};
+
         var jsonBytes = _requestRateLimitStatusService.GetStatusJsonBytes();
         return File(jsonBytes, "application/json");
+
+        //var content = new ByteArrayContent(jsonBytes);
+        //content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+        //HttpResponseMessage responseMsg = new HttpResponseMessage(HttpStatusCode.OK)
+        //{
+        //    Content = content
+        //};
+        //return new HttpResponseMessageResult(responseMsg);
     }
 
 }

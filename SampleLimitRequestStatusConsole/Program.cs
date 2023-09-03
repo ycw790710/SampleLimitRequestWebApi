@@ -1,7 +1,5 @@
 ﻿using Org.OpenAPITools.Api;
 using Org.OpenAPITools.Client;
-using Org.OpenAPITools.Model;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 
@@ -70,13 +68,6 @@ namespace SampleLimitRequestStatusConsole
 
                             allLines.Add(new string('-', consoleWidth));
 
-                            Dictionary<RequestRateLimitStatusPerTimeUnit, RequestRateLimitStatusPerTimeUnitInfo> perTimeUnit_infos = new();
-                            foreach (var perUnitInfo in status.PerUnitInfos)
-                            {
-                                if (perUnitInfo.PerTimeUnit == null)
-                                    continue;
-                                perTimeUnit_infos.Add(perUnitInfo.PerTimeUnit.Value, perUnitInfo);
-                            }
                             for (int r = 0; ; r++)
                             {
                                 List<string>[] containerColumnsLines = new List<string>[columnCount];
@@ -100,7 +91,7 @@ namespace SampleLimitRequestStatusConsole
                                     foreach (var item in container.Items)
                                     {
                                         string perTimeUnitName =
-                                            item.PerTimeUnit.HasValue ? perTimeUnit_infos[item.PerTimeUnit.Value].Name : "";
+                                            item.PerTimeUnit.HasValue ? status.PerUnitInfos[((int)item.PerTimeUnit.Value).ToString()].Name : "";
                                         var itemInfoStrs = SplitByWidth($"{item.Capacity}/{item.LimitTimes} [{perTimeUnitName}]", columnWidth);
                                         foreach (var itemInfoStr in itemInfoStrs)
                                             containerColumnsLines[c].Add(PadLeft(itemInfoStr, columnWidth));

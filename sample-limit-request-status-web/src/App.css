@@ -1,0 +1,41 @@
+.body {
+  margin: 3px;
+}
+.time {
+  border-bottom: 1px solid #000;
+}
+.column-container {
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+}
+.column {
+  display: table-cell;
+  border-right: 1px solid #000;
+  border-bottom: 1px solid #000;
+  min-height: 5px;
+}
+.column:last-child {
+  border-right: none;
+}
+.column-title {
+  text-align: center;
+}
+.row {
+  border-bottom: 1px solid #000;
+}
+.row:last-child {
+  border-bottom: none;
+}
+
+.status-statuscontainer-item-id {
+  text-align: left;
+}
+
+.status-statuscontainer-item-info {
+  text-align: right;
+}
+.text {
+  padding: 1px;
+  word-break: break-all;
+}

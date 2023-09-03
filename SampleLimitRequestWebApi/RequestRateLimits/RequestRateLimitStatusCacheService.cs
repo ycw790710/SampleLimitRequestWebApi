@@ -10,7 +10,7 @@ public class RequestRateLimitStatusCacheService : IRequestRateLimitStatusCacheSe
     private readonly ConcurrentQueue<(RequestRateLimitStatusContainerActionType ActionType, RequestRateLimitStatusContainer Container)> _waitingStatusContainers;
 
     private IReadOnlyList<RequestRateLimitStatusContainerTypeInfo> _containerTypeInfos;
-    private IReadOnlyList<RequestRateLimitStatusPerTimeUnitInfo> _perTimeUnitInfos;
+    private IReadOnlyDictionary<int, RequestRateLimitStatusPerTimeUnitInfo> _perTimeUnitInfos;
     private readonly object _lockStatusContainerStore;
     private readonly IReadOnlyDictionary<RequestRateLimitStatusContainerType, Dictionary<string, RequestRateLimitStatusContainer>> _statusContainerStore;
 
@@ -42,12 +42,12 @@ public class RequestRateLimitStatusCacheService : IRequestRateLimitStatusCacheSe
         return list;
     }
 
-    private IReadOnlyList<RequestRateLimitStatusPerTimeUnitInfo> GetPerTimeUnitInfos()
+    private IReadOnlyDictionary<int, RequestRateLimitStatusPerTimeUnitInfo> GetPerTimeUnitInfos()
     {
-        List<RequestRateLimitStatusPerTimeUnitInfo> list = new();
+        Dictionary<int, RequestRateLimitStatusPerTimeUnitInfo> dict = new();
         foreach (var perTimeUnit in Enum.GetValues<RequestRateLimitStatusPerTimeUnit>())
-            list.Add(new RequestRateLimitStatusPerTimeUnitInfo(perTimeUnit, perTimeUnit.ToString()));
-        return list;
+            dict.Add((int)perTimeUnit, new RequestRateLimitStatusPerTimeUnitInfo(perTimeUnit, perTimeUnit.ToString()));
+        return dict;
     }
 
     private Dictionary<RequestRateLimitStatusContainerType, Dictionary<string, RequestRateLimitStatusContainer>> GetStatusContainerStore()
@@ -69,19 +69,19 @@ public class RequestRateLimitStatusCacheService : IRequestRateLimitStatusCacheSe
 
         lock (_lockStatusContainerStore)
         {
-            while (_waitingStatusContainers.TryPeek(out var info) && info.Container.UpdatedTime <= updatedTime &&
+            while (_waitingStatusContainers.TryPeek(out var info) && info.Container.updatedTime <= updatedTime &&
                 _waitingStatusContainers.TryDequeue(out info))
             {
                 var preContainerUpdatedTime = DateTime.MinValue;
-                if (_statusContainerStore[info.Container.Type].ContainsKey(info.Container.Key) &&
-                    _statusContainerStore[info.Container.Type][info.Container.Key] != null)
-                    preContainerUpdatedTime = _statusContainerStore[info.Container.Type][info.Container.Key].UpdatedTime;
+                if (_statusContainerStore[info.Container.type].ContainsKey(info.Container.key) &&
+                    _statusContainerStore[info.Container.type][info.Container.key] != null)
+                    preContainerUpdatedTime = _statusContainerStore[info.Container.type][info.Container.key].updatedTime;
                 if (info.ActionType == RequestRateLimitStatusContainerActionType.Update &&
-                    info.Container.UpdatedTime > preContainerUpdatedTime)
-                    _statusContainerStore[info.Container.Type][info.Container.Key] = info.Container;
+                    info.Container.updatedTime > preContainerUpdatedTime)
+                    _statusContainerStore[info.Container.type][info.Container.key] = info.Container;
                 if (info.ActionType == RequestRateLimitStatusContainerActionType.Remove &&
-                    info.Container.UpdatedTime > preContainerUpdatedTime)
-                    _statusContainerStore[info.Container.Type].Remove(info.Container.Key);
+                    info.Container.updatedTime > preContainerUpdatedTime)
+                    _statusContainerStore[info.Container.type].Remove(info.Container.key);
             }
 
             var refContainerTypesItemContainers =

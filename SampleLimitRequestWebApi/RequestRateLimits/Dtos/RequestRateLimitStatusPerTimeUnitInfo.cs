@@ -2,12 +2,12 @@
 
 public class RequestRateLimitStatusPerTimeUnitInfo
 {
-    public RequestRateLimitStatusPerTimeUnit PerTimeUnit { get; private set; }
-    public string Name { get; private set; }
+    public RequestRateLimitStatusPerTimeUnit perTimeUnit { get; private set; }
+    public string name { get; private set; }
 
     public RequestRateLimitStatusPerTimeUnitInfo(RequestRateLimitStatusPerTimeUnit perTimeUnit, string name)
     {
-        PerTimeUnit = perTimeUnit;
-        Name = name;
+        this.perTimeUnit = perTimeUnit;
+        this.name = name;
     }
 }

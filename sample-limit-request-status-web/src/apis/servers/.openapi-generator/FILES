@@ -1,0 +1,17 @@
+.openapi-generator-ignore
+apis/LimitGlobal3PerSecond5PerMinute4PerMinuteApi.ts
+apis/LimitGlobal3PerSecond5PerMinuteApi.ts
+apis/LimitGlobal3PerSecondApi.ts
+apis/RequestRateLimitStatusApi.ts
+apis/SampleApi.ts
+apis/index.ts
+index.ts
+models/RequestRateLimitStatus.ts
+models/RequestRateLimitStatusContainer.ts
+models/RequestRateLimitStatusContainerItem.ts
+models/RequestRateLimitStatusContainerType.ts
+models/RequestRateLimitStatusContainerTypeInfo.ts
+models/RequestRateLimitStatusPerTimeUnit.ts
+models/RequestRateLimitStatusPerTimeUnitInfo.ts
+models/index.ts
+runtime.ts

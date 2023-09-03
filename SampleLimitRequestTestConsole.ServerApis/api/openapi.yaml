@@ -314,10 +314,9 @@ components:
           description: description
           type: null
         perUnitInfos:
-        - perTimeUnit: null
-          name: name
-        - perTimeUnit: null
-          name: name
+          key:
+            perTimeUnit: null
+            name: name
       properties:
         containerTypeInfos:
           items:
@@ -326,10 +325,10 @@ components:
           readOnly: true
           type: array
         perUnitInfos:
-          items:
+          additionalProperties:
             $ref: '#/components/schemas/RequestRateLimitStatusPerTimeUnitInfo'
           nullable: true
-          type: array
+          type: object
         updatedTime:
           format: date-time
           type: string

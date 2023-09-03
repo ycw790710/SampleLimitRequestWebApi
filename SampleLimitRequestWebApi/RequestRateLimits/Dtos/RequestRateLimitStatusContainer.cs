@@ -2,18 +2,18 @@
 
 public class RequestRateLimitStatusContainer
 {
-    public string Key { get; }
-    public DateTime UpdatedTime { get; }
-    public RequestRateLimitStatusContainerType Type { get; }
-    public IReadOnlyList<RequestRateLimitStatusContainerItem>? Items { get; }
+    public string key { get; }
+    public DateTime updatedTime { get; }
+    public RequestRateLimitStatusContainerType type { get; }
+    public IReadOnlyList<RequestRateLimitStatusContainerItem>? items { get; }
 
     public RequestRateLimitStatusContainer(string key, RequestRateLimitStatusContainerType type,
         IReadOnlyList<RequestRateLimitStatusContainerItem>? items = null,
         DateTime? updatedTime = null)
     {
-        Key = key;
-        UpdatedTime = updatedTime.HasValue ? updatedTime.Value : DateTime.UtcNow;
-        Type = type;
-        Items = items;
+        this.key = key;
+        this.updatedTime = updatedTime.HasValue ? updatedTime.Value : DateTime.UtcNow;
+        this.type = type;
+        this.items = items;
     }
 }

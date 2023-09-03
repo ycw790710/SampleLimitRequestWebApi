@@ -37,7 +37,7 @@ namespace Org.OpenAPITools.Model
         /// <param name="perUnitInfos">perUnitInfos.</param>
         /// <param name="updatedTime">updatedTime.</param>
         /// <param name="containerTypesContainers">containerTypesContainers.</param>
-        public RequestRateLimitStatus(List<RequestRateLimitStatusPerTimeUnitInfo> perUnitInfos = default(List<RequestRateLimitStatusPerTimeUnitInfo>), DateTime updatedTime = default(DateTime), Dictionary<string, List<RequestRateLimitStatusContainer>> containerTypesContainers = default(Dictionary<string, List<RequestRateLimitStatusContainer>>))
+        public RequestRateLimitStatus(Dictionary<string, RequestRateLimitStatusPerTimeUnitInfo> perUnitInfos = default(Dictionary<string, RequestRateLimitStatusPerTimeUnitInfo>), DateTime updatedTime = default(DateTime), Dictionary<string, List<RequestRateLimitStatusContainer>> containerTypesContainers = default(Dictionary<string, List<RequestRateLimitStatusContainer>>))
         {
             this.PerUnitInfos = perUnitInfos;
             this.UpdatedTime = updatedTime;
@@ -62,7 +62,7 @@ namespace Org.OpenAPITools.Model
         /// Gets or Sets PerUnitInfos
         /// </summary>
         [DataMember(Name = "perUnitInfos", EmitDefaultValue = true)]
-        public List<RequestRateLimitStatusPerTimeUnitInfo> PerUnitInfos { get; set; }
+        public Dictionary<string, RequestRateLimitStatusPerTimeUnitInfo> PerUnitInfos { get; set; }
 
         /// <summary>
         /// Gets or Sets UpdatedTime
