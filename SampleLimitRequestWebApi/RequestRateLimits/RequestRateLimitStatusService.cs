@@ -22,4 +22,9 @@ public class RequestRateLimitStatusService : IRequestRateLimitStatusService
     {
         return _requestRateLimitStatusCacheService.GetStatusJson();
     }
+
+    public byte[] GetStatusJsonBytes()
+    {
+        return _requestRateLimitStatusCacheService.GetStatusJsonBytes();
+    }
 }

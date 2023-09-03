@@ -1,5 +1,6 @@
 ﻿using SampleLimitRequestWebApi.RequestRateLimits.Dtos;
 using System.Collections.Concurrent;
+using System.Text;
 using System.Text.Json;
 
 namespace SampleLimitRequestWebApi.RequestRateLimits;
@@ -14,6 +15,7 @@ public class RequestRateLimitStatusCacheService : IRequestRateLimitStatusCacheSe
     private readonly IReadOnlyDictionary<RequestRateLimitStatusContainerType, Dictionary<string, RequestRateLimitStatusContainer>> _statusContainerStore;
 
     private string? _statusJson;
+    private byte[] _statusJsonBytes;
 
     public RequestRateLimitStatusCacheService()
     {
@@ -25,6 +27,7 @@ public class RequestRateLimitStatusCacheService : IRequestRateLimitStatusCacheSe
         _statusContainerStore = GetStatusContainerStore();
 
         _statusJson = null;
+        _statusJsonBytes = Array.Empty<byte>();
     }
 
     private IReadOnlyList<RequestRateLimitStatusContainerTypeInfo> GetContainerTypeInfos()
@@ -90,12 +93,18 @@ public class RequestRateLimitStatusCacheService : IRequestRateLimitStatusCacheSe
 
             var statusJson = JsonSerializer.Serialize(requestRateLimitStatus);
             _statusJson = statusJson;
+            _statusJsonBytes = statusJson != null ? Encoding.UTF8.GetBytes(statusJson) : Array.Empty<byte>();
         }
     }
 
     public string? GetStatusJson()
     {
         return _statusJson;
+    }
+
+    public byte[] GetStatusJsonBytes()
+    {
+        return _statusJsonBytes;
     }
 
 }

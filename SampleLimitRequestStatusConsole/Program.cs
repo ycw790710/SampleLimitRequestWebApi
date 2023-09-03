@@ -1,7 +1,9 @@
 ﻿using Org.OpenAPITools.Api;
 using Org.OpenAPITools.Client;
 using Org.OpenAPITools.Model;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Text;
 
 namespace SampleLimitRequestStatusConsole
 {
@@ -26,27 +28,47 @@ namespace SampleLimitRequestStatusConsole
 
             Task.Run(async () =>
             {
+                int preShowLines = 0;
                 while (_alive)
                 {
                     try
                     {
                         var status = await apiInstance.ApiRequestRateLimitStatusGetStatusPostAsync();
+                        List<string> allLines = new();
+                        int consoleWidth = GetConsoleWidth();
                         if (status != null)
                         {
-                            Console.Clear();
-                            Console.WriteLine($"更新時間: {status.UpdatedTime.ToLocalTime()}  Q:結束");
-                            int consoleWidth = Console.WindowWidth - 2;
+                            allLines.Add($"更新時間: {status.UpdatedTime.ToLocalTime()}  Q:結束");
 
-                            int columnWidth = (consoleWidth - status.ContainerTypeInfos.Count - 1) / status.ContainerTypeInfos.Count;
-                            Console.WriteLine("|" + string.Join('|',
-                                 status.ContainerTypeInfos.Select(n => PadLeft(n.Name, columnWidth))
-                                 ) + "|"
-                                );
-                            Console.WriteLine("|" + string.Join('|',
-                                status.ContainerTypeInfos.Select(n => PadLeft(n.Description, columnWidth))
-                                ) + "|"
-                               );
-                            Console.WriteLine(new string('-', consoleWidth));
+                            int columnCount = status.ContainerTypeInfos.Count;
+
+                            int columnWidth = (consoleWidth - columnCount - 1) / columnCount;
+
+                            List<string>[] titleNameColumnsLines = new List<string>[columnCount];
+                            for (int i = 0; i < titleNameColumnsLines.Length; i++)
+                                titleNameColumnsLines[i] = new();
+                            for (var c = 0; c < columnCount; c++)
+                            {
+                                var name = status.ContainerTypeInfos[c].Name;
+                                var nameStrs = SplitByWidth(name, columnWidth);
+                                foreach (var nameStr in nameStrs)
+                                    titleNameColumnsLines[c].Add(PadRight(nameStr, columnWidth));
+                            }
+                            allLines.AddRange(GetPrintingColumnLines(columnCount, columnWidth, titleNameColumnsLines));
+
+                            List<string>[] titleDescriptionColumnsLines = new List<string>[columnCount];
+                            for (int i = 0; i < titleDescriptionColumnsLines.Length; i++)
+                                titleDescriptionColumnsLines[i] = new();
+                            for (var c = 0; c < columnCount; c++)
+                            {
+                                var description = status.ContainerTypeInfos[c].Description;
+                                var descriptionStrs = SplitByWidth(description, columnWidth);
+                                foreach (var descriptionStr in descriptionStrs)
+                                    titleDescriptionColumnsLines[c].Add(PadRight(descriptionStr, columnWidth));
+                            }
+                            allLines.AddRange(GetPrintingColumnLines(columnCount, columnWidth, titleDescriptionColumnsLines));
+
+                            allLines.Add(new string('-', consoleWidth));
 
                             Dictionary<RequestRateLimitStatusPerTimeUnit, RequestRateLimitStatusPerTimeUnitInfo> perTimeUnit_infos = new();
                             foreach (var perUnitInfo in status.PerUnitInfos)
@@ -57,11 +79,11 @@ namespace SampleLimitRequestStatusConsole
                             }
                             for (int r = 0; ; r++)
                             {
-                                List<string>[] columnsLines = new List<string>[status.ContainerTypeInfos.Count];
-                                for (int i = 0; i < columnsLines.Length; i++)
-                                    columnsLines[i] = new();
+                                List<string>[] containerColumnsLines = new List<string>[columnCount];
+                                for (int i = 0; i < containerColumnsLines.Length; i++)
+                                    containerColumnsLines[i] = new();
 
-                                for (int c = 0; c < status.ContainerTypeInfos.Count; c++)
+                                for (int c = 0; c < columnCount; c++)
                                 {
                                     var typeInfo = status.ContainerTypeInfos[c];
                                     if (typeInfo.Type == null)
@@ -72,66 +94,114 @@ namespace SampleLimitRequestStatusConsole
                                     if (r >= containers.Count)
                                         continue;
                                     var container = containers[r];
-                                    columnsLines[c].Add(PadRight($"ID [{container.Key}]", columnWidth));
+                                    var idStrs = SplitByWidth($"ID [{container.Key}]", columnWidth);
+                                    foreach (var idStr in idStrs)
+                                        containerColumnsLines[c].Add(PadRight(idStr, columnWidth));
                                     foreach (var item in container.Items)
                                     {
                                         string perTimeUnitName =
                                             item.PerTimeUnit.HasValue ? perTimeUnit_infos[item.PerTimeUnit.Value].Name : "";
-                                        columnsLines[c].Add(
-                                            PadLeft($"{item.Capacity}/{item.LimitTimes} [{perTimeUnitName}]", columnWidth));
+                                        var itemInfoStrs = SplitByWidth($"{item.Capacity}/{item.LimitTimes} [{perTimeUnitName}]", columnWidth);
+                                        foreach (var itemInfoStr in itemInfoStrs)
+                                            containerColumnsLines[c].Add(PadLeft(itemInfoStr, columnWidth));
                                     }
                                 }
 
-                                if (columnsLines.All(n => n.Count == 0))
+                                if (containerColumnsLines.All(n => n.Count == 0))
                                     break;
-
-                                for (int colRow = 0; ; colRow++)
-                                {
-                                    List<string> lines = new();
-                                    int countEmpty = 0;
-                                    for (int c = 0; c < status.ContainerTypeInfos.Count; c++)
-                                    {
-                                        if (colRow >= columnsLines[c].Count)
-                                        {
-                                            lines.Add(PadRight("", columnWidth));
-                                            countEmpty++;
-                                        }
-                                        else
-                                            lines.Add(columnsLines[c][colRow]);
-                                    }
-                                    if (countEmpty == status.ContainerTypeInfos.Count)
-                                        break;
-
-                                    Console.WriteLine("|" + string.Join('|',
-                                        lines
-                                        ) + "|"
-                                       );
-                                }
+                                allLines.AddRange(GetPrintingColumnLines(columnCount, columnWidth, containerColumnsLines));
                             }
 
                         }
+                        Console.Clear();
+                        for (int i = 0; i < allLines.Count; i++)
+                            Console.WriteLine(allLines[i]);
+                        for (int i = allLines.Count; i < preShowLines; i++)
+                            Console.WriteLine(new string(' ', consoleWidth));
+                        preShowLines = allLines.Count;
                     }
                     catch (Exception ex)
                     {
                         Debug.WriteLine(ex.ToString());
                     }
 
-                    SpinWait.SpinUntil(() => !_alive, 200);
+                    SpinWait.SpinUntil(() => !_alive, 100);
                 }
             });
         }
 
+        private static int GetConsoleWidth()
+        {
+            int consoleWidth = 180;
+            if (OperatingSystem.IsWindows())
+                consoleWidth = Console.WindowWidth;
+            return consoleWidth;
+        }
+
+        private static List<string> GetPrintingColumnLines(int columnCount, int columnWidth, List<string>[] columnsLines)
+        {
+            List<string> printingColumnLines = new();
+            for (int colRow = 0; ; colRow++)
+            {
+                List<string> lines = new();
+                int countEmpty = 0;
+                for (int c = 0; c < columnCount; c++)
+                {
+                    if (colRow >= columnsLines[c].Count)
+                    {
+                        lines.Add(PadRight("", columnWidth));
+                        countEmpty++;
+                    }
+                    else
+                        lines.Add(columnsLines[c][colRow]);
+                }
+                if (countEmpty == columnCount)
+                    break;
+
+                printingColumnLines.Add("|" + string.Join('|', lines) + "|");
+            }
+            return printingColumnLines;
+        }
+
+        private static IReadOnlyList<string> SplitByWidth(string text, int width)
+        {
+            List<string> list = new();
+            int i = 0;
+            while (i < text.Length)
+            {
+                StringBuilder sb = new();
+                sb.Append(text[i]);
+                var textWidth = GetCharWidth(text[i++]);
+                while (i < text.Length && textWidth + GetCharWidth(text[i]) <= width)
+                {
+                    sb.Append(text[i]);
+                    textWidth += GetCharWidth(text[i++]);
+                }
+                list.Add(sb.ToString());
+            }
+            return list;
+        }
+
         private static string PadRight(string text, int width)
         {
-            var count = text.Sum(c => c < 256 ? 1 : 2);
-            var offset = count - text.Length;
+            int textWidth = GetTextWidth(text);
+            var offset = textWidth - text.Length;
             return text.PadRight(width - offset);
+        }
+
+        private static int GetTextWidth(string text)
+        {
+            return text.Sum(c => GetCharWidth(c));
+        }
+        private static int GetCharWidth(char c)
+        {
+            return c < 256 ? 1 : 2;
         }
 
         private static string PadLeft(string text, int width)
         {
-            var count = text.Sum(c => c < 256 ? 1 : 2);
-            var offset = count - text.Length;
+            int textWidth = GetTextWidth(text);
+            var offset = textWidth - text.Length;
             return text.PadLeft(width - offset);
         }
 
