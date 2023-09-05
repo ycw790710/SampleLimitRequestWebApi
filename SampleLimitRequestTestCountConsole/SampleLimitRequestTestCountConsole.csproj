@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.32.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CodeExtensions\CodeExtensions.csproj" />
+    <ProjectReference Include="..\RequestRateLimit\RequestRateLimit.csproj" />
+    <ProjectReference Include="..\SampleLimitRequestTestConsole.ServerApis\SampleLimitRequestTestConsole.ServerApis.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -18,7 +18,7 @@ namespace SampleLimitRequestStatusConsole
             ThreadPool.SetMinThreads(130,130);
             
             DisplayBoard();
-            CallTest2();
+            //CallTest2();
 
             while (Console.ReadKey().Key != ConsoleKey.Q)
                 ;
@@ -149,7 +149,6 @@ namespace SampleLimitRequestStatusConsole
             config.BasePath = _basePath;
 
             var requestRateLimitStatusApi = new RequestRateLimitStatusApi(config);
-            var countApi = new CountApi(config);
 
             Stopwatch sw_share = new();
             sw_share.Start();
@@ -162,8 +161,6 @@ namespace SampleLimitRequestStatusConsole
                         try
                         {
                             await requestRateLimitStatusApi.ApiRequestRateLimitStatusGetStatusPostAsync();
-
-                            //await countApi.ApiCountGetNormalGetAsync();
                         }
                         catch
                         {

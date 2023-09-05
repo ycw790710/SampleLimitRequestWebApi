@@ -7,6 +7,7 @@ import {
 } from "./apis/servers";
 import { RequestRateLimitStatus } from "./apis/servers";
 import { useApiConfiguration } from "./status-store/api-configuration-store";
+import { ApiConfiguration } from "./apis/api-configuration";
 
 const dateTimeOptions: Intl.DateTimeFormatOptions = {
   year: "numeric",
@@ -19,6 +20,8 @@ const dateTimeOptions: Intl.DateTimeFormatOptions = {
 };
 
 function App() {
+  console.log("Render App");
+
   const { apiConfiguration, setApiConfiguration } = useApiConfiguration();
 
   const requestRateLimitStatusApi = useMemo(() => {
@@ -31,28 +34,6 @@ function App() {
   const [statusInfoData, setStatusInfoData] =
     useState<RequestRateLimitStatusInfo>();
   const [statusInfoDataError, setStatusInfoDataError] = useState<string>();
-
-  // const countApi = useMemo(() => {
-  //   return new CountApi(apiConfiguration);
-  // }, [apiConfiguration]);
-  // const [countData, setCountData] = useState(0);
-
-  // useEffect(() => {
-  //   const intervalId = setInterval(async () => {
-  //     try {
-  //       setCountData(-1);
-  //       await countApi.apiCountGetNormalGet().then((data) => {
-  //         setCountData(data);
-  //       });
-  //     } catch (error) {
-  //       setCountData(-1);
-  //     }
-  //   }, 50);
-
-  //   return () => {
-  //     clearInterval(intervalId);
-  //   };
-  // }, []);
 
   const refresh = () => {
     setReload((state) => state + 1);
@@ -72,7 +53,7 @@ function App() {
   }, [requestRateLimitStatusApi]);
 
   useEffect(() => {
-    const timeoutId = setTimeout(fetchData, 100);
+    const timeoutId = setTimeout(fetchData, 200);
 
     return () => {
       clearTimeout(timeoutId);
