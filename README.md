@@ -2,6 +2,11 @@
 
 # 未完成
 
+### react vulnerability: nth-check
+* https://github.com/facebook/create-react-app/issues/11647
+* https://stackoverflow.com/questions/71282206/github-dependabot-alert-inefficient-regular-expression-complexity-in-nth-check
+* 未處理
+
 ### openapi-generator-cli指令
 * 下載
  * https://github.com/OpenAPITools/openapi-generator#13---download-jar

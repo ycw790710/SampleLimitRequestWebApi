@@ -16,16 +16,43 @@
 import * as runtime from '../runtime';
 import type {
   RequestRateLimitStatus,
+  RequestRateLimitStatusInfo,
 } from '../models/index';
 import {
     RequestRateLimitStatusFromJSON,
     RequestRateLimitStatusToJSON,
+    RequestRateLimitStatusInfoFromJSON,
+    RequestRateLimitStatusInfoToJSON,
 } from '../models/index';
 
 /**
  * 
  */
 export class RequestRateLimitStatusApi extends runtime.BaseAPI {
+
+    /**
+     */
+    async apiRequestRateLimitStatusGetStatusInfoPostRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<RequestRateLimitStatusInfo>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/api/RequestRateLimitStatus/GetStatusInfo`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => RequestRateLimitStatusInfoFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async apiRequestRateLimitStatusGetStatusInfoPost(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<RequestRateLimitStatusInfo> {
+        const response = await this.apiRequestRateLimitStatusGetStatusInfoPostRaw(initOverrides);
+        return await response.value();
+    }
 
     /**
      */

@@ -19,18 +19,6 @@ import {
     RequestRateLimitStatusContainerFromJSONTyped,
     RequestRateLimitStatusContainerToJSON,
 } from './RequestRateLimitStatusContainer';
-import type { RequestRateLimitStatusContainerTypeInfo } from './RequestRateLimitStatusContainerTypeInfo';
-import {
-    RequestRateLimitStatusContainerTypeInfoFromJSON,
-    RequestRateLimitStatusContainerTypeInfoFromJSONTyped,
-    RequestRateLimitStatusContainerTypeInfoToJSON,
-} from './RequestRateLimitStatusContainerTypeInfo';
-import type { RequestRateLimitStatusPerTimeUnitInfo } from './RequestRateLimitStatusPerTimeUnitInfo';
-import {
-    RequestRateLimitStatusPerTimeUnitInfoFromJSON,
-    RequestRateLimitStatusPerTimeUnitInfoFromJSONTyped,
-    RequestRateLimitStatusPerTimeUnitInfoToJSON,
-} from './RequestRateLimitStatusPerTimeUnitInfo';
 
 /**
  * 
@@ -38,18 +26,6 @@ import {
  * @interface RequestRateLimitStatus
  */
 export interface RequestRateLimitStatus {
-    /**
-     * 
-     * @type {Array<RequestRateLimitStatusContainerTypeInfo>}
-     * @memberof RequestRateLimitStatus
-     */
-    readonly containerTypeInfos?: Array<RequestRateLimitStatusContainerTypeInfo> | null;
-    /**
-     * 
-     * @type {{ [key: string]: RequestRateLimitStatusPerTimeUnitInfo; }}
-     * @memberof RequestRateLimitStatus
-     */
-    perUnitInfos?: { [key: string]: RequestRateLimitStatusPerTimeUnitInfo; } | null;
     /**
      * 
      * @type {Date}
@@ -83,8 +59,6 @@ export function RequestRateLimitStatusFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
         
-        'containerTypeInfos': !exists(json, 'containerTypeInfos') ? undefined : (json['containerTypeInfos'] === null ? null : (json['containerTypeInfos'] as Array<any>).map(RequestRateLimitStatusContainerTypeInfoFromJSON)),
-        'perUnitInfos': !exists(json, 'perUnitInfos') ? undefined : (json['perUnitInfos'] === null ? null : mapValues(json['perUnitInfos'], RequestRateLimitStatusPerTimeUnitInfoFromJSON)),
         'updatedTime': !exists(json, 'updatedTime') ? undefined : (new Date(json['updatedTime'])),
         'containerTypesContainers': !exists(json, 'containerTypesContainers') ? undefined : json['containerTypesContainers'],
     };
@@ -99,7 +73,6 @@ export function RequestRateLimitStatusToJSON(value?: RequestRateLimitStatus | nu
     }
     return {
         
-        'perUnitInfos': value.perUnitInfos === undefined ? undefined : (value.perUnitInfos === null ? null : mapValues(value.perUnitInfos, RequestRateLimitStatusPerTimeUnitInfoToJSON)),
         'updatedTime': value.updatedTime === undefined ? undefined : (value.updatedTime.toISOString()),
         'containerTypesContainers': value.containerTypesContainers,
     };

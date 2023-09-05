@@ -5,6 +5,34 @@ info:
 servers:
 - url: /
 paths:
+  /api/Count/Get_Normal:
+    get:
+      parameters:
+      - explode: true
+        in: query
+        name: data
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                format: int32
+                type: integer
+            application/json:
+              schema:
+                format: int32
+                type: integer
+            text/json:
+              schema:
+                format: int32
+                type: integer
+          description: Success
+      tags:
+      - Count
   /api/LimitGlobal3PerSecond/Get_Normal:
     get:
       parameters:
@@ -94,6 +122,23 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/RequestRateLimitStatus'
+          description: Success
+      tags:
+      - RequestRateLimitStatus
+  /api/RequestRateLimitStatus/GetStatusInfo:
+    post:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/RequestRateLimitStatusInfo'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestRateLimitStatusInfo'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/RequestRateLimitStatusInfo'
           description: Success
       tags:
       - RequestRateLimitStatus
@@ -306,29 +351,7 @@ components:
               limitTimes: 0
               capacity: 6
             key: key
-        containerTypeInfos:
-        - name: name
-          description: description
-          type: null
-        - name: name
-          description: description
-          type: null
-        perUnitInfos:
-          key:
-            perTimeUnit: null
-            name: name
       properties:
-        containerTypeInfos:
-          items:
-            $ref: '#/components/schemas/RequestRateLimitStatusContainerTypeInfo'
-          nullable: true
-          readOnly: true
-          type: array
-        perUnitInfos:
-          additionalProperties:
-            $ref: '#/components/schemas/RequestRateLimitStatusPerTimeUnitInfo'
-          nullable: true
-          type: object
         updatedTime:
           format: date-time
           type: string
@@ -407,6 +430,32 @@ components:
         description:
           nullable: true
           type: string
+      type: object
+    RequestRateLimitStatusInfo:
+      additionalProperties: false
+      example:
+        containerTypeInfos:
+        - name: name
+          description: description
+          type: null
+        - name: name
+          description: description
+          type: null
+        perUnitInfos:
+          key:
+            perTimeUnit: null
+            name: name
+      properties:
+        containerTypeInfos:
+          items:
+            $ref: '#/components/schemas/RequestRateLimitStatusContainerTypeInfo'
+          nullable: true
+          type: array
+        perUnitInfos:
+          additionalProperties:
+            $ref: '#/components/schemas/RequestRateLimitStatusPerTimeUnitInfo'
+          nullable: true
+          type: object
       type: object
     RequestRateLimitStatusPerTimeUnit:
       enum:

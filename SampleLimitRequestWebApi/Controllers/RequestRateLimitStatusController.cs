@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SampleLimitRequestWebApi.RequestRateLimits;
-using SampleLimitRequestWebApi.RequestRateLimits.Dtos;
+using RequestRateLimit.Dtos;
+using RequestRateLimit.Services;
 
 namespace SampleLimitRequestWebApi.Controllers;
 
@@ -14,6 +14,7 @@ public class RequestRateLimitStatusController : DefaultControllerBase
     }
 
     [HttpPost]
+    [GlobalRequestRateLimit(5000, RequestRateLimitPerTimeUnit.Seconds)]
     public ActionResult<RequestRateLimitStatus> GetStatus()
     {
         //var json = _requestRateLimitStatusService.GetStatusJson();
@@ -27,6 +28,7 @@ public class RequestRateLimitStatusController : DefaultControllerBase
         var jsonBytes = _requestRateLimitStatusService.GetStatusJsonBytes();
         return File(jsonBytes, "application/json");
 
+        //var jsonBytes = _requestRateLimitStatusService.GetStatusJsonBytes();
         //var content = new ByteArrayContent(jsonBytes);
         //content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
         //HttpResponseMessage responseMsg = new HttpResponseMessage(HttpStatusCode.OK)
@@ -34,6 +36,14 @@ public class RequestRateLimitStatusController : DefaultControllerBase
         //    Content = content
         //};
         //return new HttpResponseMessageResult(responseMsg);
+    }
+
+    [HttpPost]
+    [GlobalRequestRateLimit(5000, RequestRateLimitPerTimeUnit.Seconds)]
+    public ActionResult<RequestRateLimitStatusInfo> GetStatusInfo()
+    {
+        var jsonBytes = _requestRateLimitStatusService.GetStatusInfoJsonBytes();
+        return File(jsonBytes, "application/json");
     }
 
 }

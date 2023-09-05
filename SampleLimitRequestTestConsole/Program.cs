@@ -1,10 +1,11 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using Org.OpenAPITools.Api;
-using Org.OpenAPITools.Client;
+﻿using RequestRateLimit.Components;
+using RequestRateLimit.Dtos;
+using RequestRateLimit.Services;
 using System.Diagnostics;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+using System.Net;
+using System.Reflection;
 using System.Text;
+using System.Text.Json;
 
 namespace SampleLimitRequestTestConsole
 {
@@ -14,86 +15,105 @@ namespace SampleLimitRequestTestConsole
         static string _basePath = "https://localhost:7212";
         static async Task Main(string[] args)
         {
-            await Test1();
+            ThreadPool.SetMinThreads(130, 3);
+            TestServicePerformance();
 
             Console.ReadLine();
         }
-
-        private static async Task Test1()
+        private static void TestServicePerformance()
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"---{nameof(Test1)}---");
-            Console.ResetColor();
+            var requestRateLimitStatusCacheService = new RequestRateLimitStatusCacheService();
+            var requestRateLimitCacheService = new RequestRateLimitCacheService(requestRateLimitStatusCacheService);
+            var requestRateLimitService = new RequestRateLimitService(requestRateLimitCacheService);
+            var requestRateLimitStatusService = new RequestRateLimitStatusService(
+                requestRateLimitStatusCacheService, requestRateLimitCacheService);
 
-            var dateTimePattern = "yyyy/MM/dd hh:mm:ss.fff tt";
+            Task.Run(async () => {
+                while (_alive)
+                {
+                    requestRateLimitStatusService.UpdateStatuses();
+                    await Task.Delay(100);
+                }
+            });
 
-            Stopwatch sw = new();
-            //TODO: Test1
-            try
+            Stopwatch sw_share = new();
+            sw_share.Start();
+            for (int i = 0; i < 100; i++)
             {
-                Configuration config = new Configuration();
-                config.BasePath = _basePath;
-                config.DefaultHeaders.Add("Authorization", "Bearer " + GetToken(1));
-                var apiInstance = new SampleApi(config);
-                var data = "data_example";
+                Task.Run(() => {
+                    while (_alive)
+                    {
+                        var startTime = sw_share.ElapsedMilliseconds;
+                        try
+                        {
+                            var controllerName = nameof(TestGlobalRequestRateLimit);
+                            var actionName = nameof(TestGlobalRequestRateLimit.TestAction);
+                            var typeInfo = typeof(TestGlobalRequestRateLimit).GetTypeInfo();
+                            var methodInfo = typeInfo.GetMethod(actionName);
+                            var host = Dns.GetHostEntry(Dns.GetHostName());
+                            var ipAddress = host.AddressList[0];
+                            requestRateLimitService.IsRequestOverLimit(
+                                methodInfo, typeInfo, controllerName, actionName, ipAddress);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine(ex.ToString());
+                        }
+                        var endTime = sw_share.ElapsedMilliseconds;
+                        var time = (int)Math.Max(0, 0 - endTime + startTime);
 
-                Console.WriteLine($"{nameof(apiInstance.ApiSampleGetLimitGlobal5PreSecondUser3PreSecondGetAsync)}");
-                for (int i = 0; i < 4; i++)
+                        SpinWait.SpinUntil(() => !_alive, time);
+                    }
+                });
+            }
+
+            Task.Run(async () => {
+
+                var statusInfoJsonBytes = requestRateLimitStatusService.GetStatusInfoJsonBytes();
+                var statusInfoJson = Encoding.UTF8.GetString(statusInfoJsonBytes);
+                var statusInfo = JsonSerializer.Deserialize<RequestRateLimitStatusInfo>(statusInfoJson);
+                while (_alive)
                 {
                     try
                     {
-                        await apiInstance.ApiSampleGetLimitGlobal5PreSecondUser3PreSecondGetAsync(data);
-                        Console.WriteLine($"[{DateTime.Now.ToString(dateTimePattern)}] Ok");
+                        var json = requestRateLimitStatusService.GetStatusJson();
+                        var obj = JsonSerializer.Deserialize<RequestRateLimitStatus>(json);
+                        var containerList = obj?.containerTypesContainers?.FirstOrDefault();
+                        if (containerList != null)
+                        {
+                            var container = containerList.Value.Value.FirstOrDefault();
+                            var item = container?.items?.FirstOrDefault();
+                            if (item != null)
+                            {
+                                var containerTypeInfo = 
+                                    statusInfo.containerTypeInfos.First(n => n.type == container.type);
+
+                                var key = container.key;
+                                var perTimeUnitinfo = statusInfo.perUnitInfos[(int)item.perTimeUnit];
+                                Console.Clear();
+                                Console.WriteLine($"Service 基礎效能測試");
+                                Console.WriteLine($"[{containerTypeInfo.name}] [{key}] {item.capacity}/{item.limitTimes} [{perTimeUnitinfo.name}]");
+                            }
+                        }
                     }
-                    catch
+                    catch(Exception ex)
                     {
-                        Console.WriteLine($"[{DateTime.Now.ToString(dateTimePattern)}] Fail");
+                        Debug.WriteLine(ex.ToString());
                     }
+
+                    await Task.Delay(100);
                 }
-            }
-            catch
-            {
-            }
+            });
         }
 
-        static string GetTimeStr(int milliseconds)
+    }
+
+    [GlobalRequestRateLimit(5000, RequestRateLimitPerTimeUnit.Seconds)]
+    class TestGlobalRequestRateLimit
+    {
+        public void TestAction()
         {
-            TimeSpan ts = TimeSpan.FromMilliseconds(milliseconds);
-            return $"{ts.Hours}:{ts.Minutes:D2}:{ts.Seconds:D2}";
+
         }
-
-        static string GetToken(int userId)
-        {
-            var signingKey = new SymmetricSecurityKey(GetSecretKey());
-
-            var claims = CreateClaims(userId);
-
-            var jwtSecurityToken = new JwtSecurityToken(
-                issuer: "SampleLimitRequest",
-                audience: "SampleLimitRequest",
-                claims: claims,
-                expires: DateTime.Now.AddDays(1),
-                signingCredentials: new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha512)
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
-        }
-
-        static byte[] GetSecretKey()
-        {
-            var bytes = Encoding.UTF8.GetBytes("a98dghmnibqutldimpga08hpm3h;ovihdg;029;vty;d0aest0oiassad9pnyvg39wyh08tyvaote");
-            Array.Resize(ref bytes, 64);
-            return bytes;
-        }
-
-        static IEnumerable<Claim> CreateClaims(int userId)
-        {
-            var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, userId.ToString()),
-        };
-            return claims;
-        }
-
     }
 }

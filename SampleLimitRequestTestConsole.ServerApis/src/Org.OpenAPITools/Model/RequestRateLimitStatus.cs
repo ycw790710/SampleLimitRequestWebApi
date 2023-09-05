@@ -34,35 +34,13 @@ namespace Org.OpenAPITools.Model
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestRateLimitStatus" /> class.
         /// </summary>
-        /// <param name="perUnitInfos">perUnitInfos.</param>
         /// <param name="updatedTime">updatedTime.</param>
         /// <param name="containerTypesContainers">containerTypesContainers.</param>
-        public RequestRateLimitStatus(Dictionary<string, RequestRateLimitStatusPerTimeUnitInfo> perUnitInfos = default(Dictionary<string, RequestRateLimitStatusPerTimeUnitInfo>), DateTime updatedTime = default(DateTime), Dictionary<string, List<RequestRateLimitStatusContainer>> containerTypesContainers = default(Dictionary<string, List<RequestRateLimitStatusContainer>>))
+        public RequestRateLimitStatus(DateTime updatedTime = default(DateTime), Dictionary<string, List<RequestRateLimitStatusContainer>> containerTypesContainers = default(Dictionary<string, List<RequestRateLimitStatusContainer>>))
         {
-            this.PerUnitInfos = perUnitInfos;
             this.UpdatedTime = updatedTime;
             this.ContainerTypesContainers = containerTypesContainers;
         }
-
-        /// <summary>
-        /// Gets or Sets ContainerTypeInfos
-        /// </summary>
-        [DataMember(Name = "containerTypeInfos", EmitDefaultValue = true)]
-        public List<RequestRateLimitStatusContainerTypeInfo> ContainerTypeInfos { get; private set; }
-
-        /// <summary>
-        /// Returns false as ContainerTypeInfos should not be serialized given that it's read-only.
-        /// </summary>
-        /// <returns>false (boolean)</returns>
-        public bool ShouldSerializeContainerTypeInfos()
-        {
-            return false;
-        }
-        /// <summary>
-        /// Gets or Sets PerUnitInfos
-        /// </summary>
-        [DataMember(Name = "perUnitInfos", EmitDefaultValue = true)]
-        public Dictionary<string, RequestRateLimitStatusPerTimeUnitInfo> PerUnitInfos { get; set; }
 
         /// <summary>
         /// Gets or Sets UpdatedTime
@@ -84,8 +62,6 @@ namespace Org.OpenAPITools.Model
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("class RequestRateLimitStatus {\n");
-            sb.Append("  ContainerTypeInfos: ").Append(ContainerTypeInfos).Append("\n");
-            sb.Append("  PerUnitInfos: ").Append(PerUnitInfos).Append("\n");
             sb.Append("  UpdatedTime: ").Append(UpdatedTime).Append("\n");
             sb.Append("  ContainerTypesContainers: ").Append(ContainerTypesContainers).Append("\n");
             sb.Append("}\n");
@@ -124,18 +100,6 @@ namespace Org.OpenAPITools.Model
             }
             return 
                 (
-                    this.ContainerTypeInfos == input.ContainerTypeInfos ||
-                    this.ContainerTypeInfos != null &&
-                    input.ContainerTypeInfos != null &&
-                    this.ContainerTypeInfos.SequenceEqual(input.ContainerTypeInfos)
-                ) && 
-                (
-                    this.PerUnitInfos == input.PerUnitInfos ||
-                    this.PerUnitInfos != null &&
-                    input.PerUnitInfos != null &&
-                    this.PerUnitInfos.SequenceEqual(input.PerUnitInfos)
-                ) && 
-                (
                     this.UpdatedTime == input.UpdatedTime ||
                     (this.UpdatedTime != null &&
                     this.UpdatedTime.Equals(input.UpdatedTime))
@@ -157,14 +121,6 @@ namespace Org.OpenAPITools.Model
             unchecked // Overflow is fine, just wrap
             {
                 int hashCode = 41;
-                if (this.ContainerTypeInfos != null)
-                {
-                    hashCode = (hashCode * 59) + this.ContainerTypeInfos.GetHashCode();
-                }
-                if (this.PerUnitInfos != null)
-                {
-                    hashCode = (hashCode * 59) + this.PerUnitInfos.GetHashCode();
-                }
                 if (this.UpdatedTime != null)
                 {
                     hashCode = (hashCode * 59) + this.UpdatedTime.GetHashCode();

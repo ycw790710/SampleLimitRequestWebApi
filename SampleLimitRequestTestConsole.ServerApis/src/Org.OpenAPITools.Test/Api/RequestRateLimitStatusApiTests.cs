@@ -55,6 +55,17 @@ namespace Org.OpenAPITools.Test.Api
         }
 
         /// <summary>
+        /// Test ApiRequestRateLimitStatusGetStatusInfoPost
+        /// </summary>
+        [Fact]
+        public void ApiRequestRateLimitStatusGetStatusInfoPostTest()
+        {
+            // TODO uncomment below to test the method and replace null with proper value
+            //var response = instance.ApiRequestRateLimitStatusGetStatusInfoPost();
+            //Assert.IsType<RequestRateLimitStatusInfo>(response);
+        }
+
+        /// <summary>
         /// Test ApiRequestRateLimitStatusGetStatusPost
         /// </summary>
         [Fact]

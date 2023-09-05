@@ -1,7 +1,9 @@
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using SampleLimitRequestWebApi.RequestRateLimits;
+using RequestRateLimit.DependencyInjections;
+using SampleLimitRequestWebApi.RequestRateLimits.BackgroundServices;
+using SampleLimitRequestWebApi.RequestRateLimits.Middlewares;
 using System.Text;
 
 namespace SampleLimitRequestWebApi
@@ -50,10 +52,7 @@ namespace SampleLimitRequestWebApi
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddSingleton<IRequestRateLimitStatusCacheService, RequestRateLimitStatusCacheService>();
-            builder.Services.AddSingleton<IRequestRateLimitCacheService, RequestRateLimitCacheService>();
-            builder.Services.AddSingleton<IRequestRateLimitStatusService, RequestRateLimitStatusService>();
-            builder.Services.AddScoped<IRequestRateLimitService, RequestRateLimitService>();
+            builder.Services.AddRequestRateLimits();
             builder.Services.AddHostedService<RequestRateLimitStatusCacheBackgroundService>();
 
             var app = builder.Build();

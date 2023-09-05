@@ -85,17 +85,17 @@ namespace Example
 
             Configuration config = new Configuration();
             config.BasePath = "http://localhost";
-            var apiInstance = new LimitGlobal3PerSecondApi(config);
+            var apiInstance = new CountApi(config);
             var data = "data_example";  // string? |  (optional) 
 
             try
             {
-                string result = apiInstance.ApiLimitGlobal3PerSecondGetNormalGet(data);
+                int result = apiInstance.ApiCountGetNormalGet(data);
                 Debug.WriteLine(result);
             }
             catch (ApiException e)
             {
-                Debug.Print("Exception when calling LimitGlobal3PerSecondApi.ApiLimitGlobal3PerSecondGetNormalGet: " + e.Message );
+                Debug.Print("Exception when calling CountApi.ApiCountGetNormalGet: " + e.Message );
                 Debug.Print("Status Code: "+ e.ErrorCode);
                 Debug.Print(e.StackTrace);
             }
@@ -112,9 +112,11 @@ All URIs are relative to *http://localhost*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*CountApi* | [**ApiCountGetNormalGet**](docs/CountApi.md#apicountgetnormalget) | **GET** /api/Count/Get_Normal | 
 *LimitGlobal3PerSecondApi* | [**ApiLimitGlobal3PerSecondGetNormalGet**](docs/LimitGlobal3PerSecondApi.md#apilimitglobal3persecondgetnormalget) | **GET** /api/LimitGlobal3PerSecond/Get_Normal | 
 *LimitGlobal3PerSecond5PerMinuteApi* | [**ApiLimitGlobal3PerSecond5PerMinuteGetNormalGet**](docs/LimitGlobal3PerSecond5PerMinuteApi.md#apilimitglobal3persecond5perminutegetnormalget) | **GET** /api/LimitGlobal3PerSecond5PerMinute/Get_Normal | 
 *LimitGlobal3PerSecond5PerMinute4PerMinuteApi* | [**ApiLimitGlobal3PerSecond5PerMinute4PerMinuteGetNormalGet**](docs/LimitGlobal3PerSecond5PerMinute4PerMinuteApi.md#apilimitglobal3persecond5perminute4perminutegetnormalget) | **GET** /api/LimitGlobal3PerSecond5PerMinute4PerMinute/Get_Normal | 
+*RequestRateLimitStatusApi* | [**ApiRequestRateLimitStatusGetStatusInfoPost**](docs/RequestRateLimitStatusApi.md#apirequestratelimitstatusgetstatusinfopost) | **POST** /api/RequestRateLimitStatus/GetStatusInfo | 
 *RequestRateLimitStatusApi* | [**ApiRequestRateLimitStatusGetStatusPost**](docs/RequestRateLimitStatusApi.md#apirequestratelimitstatusgetstatuspost) | **POST** /api/RequestRateLimitStatus/GetStatus | 
 *SampleApi* | [**ApiSampleGetLimitGlobal1PreSecondGet**](docs/SampleApi.md#apisamplegetlimitglobal1presecondget) | **GET** /api/Sample/Get_LimitGlobal1PreSecond | 
 *SampleApi* | [**ApiSampleGetLimitGlobal3PreSecond5PerMinutesGet**](docs/SampleApi.md#apisamplegetlimitglobal3presecond5perminutesget) | **GET** /api/Sample/Get_LimitGlobal3PreSecond5PerMinutes | 
@@ -133,6 +135,7 @@ Class | Method | HTTP request | Description
  - [Model.RequestRateLimitStatusContainerItem](docs/RequestRateLimitStatusContainerItem.md)
  - [Model.RequestRateLimitStatusContainerType](docs/RequestRateLimitStatusContainerType.md)
  - [Model.RequestRateLimitStatusContainerTypeInfo](docs/RequestRateLimitStatusContainerTypeInfo.md)
+ - [Model.RequestRateLimitStatusInfo](docs/RequestRateLimitStatusInfo.md)
  - [Model.RequestRateLimitStatusPerTimeUnit](docs/RequestRateLimitStatusPerTimeUnit.md)
  - [Model.RequestRateLimitStatusPerTimeUnitInfo](docs/RequestRateLimitStatusPerTimeUnitInfo.md)
 

@@ -1,6 +1,9 @@
-﻿using Org.OpenAPITools.Api;
+﻿using Microsoft.IdentityModel.Tokens;
+using Org.OpenAPITools.Api;
 using Org.OpenAPITools.Client;
 using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace SampleLimitRequestStatusConsole
@@ -12,7 +15,10 @@ namespace SampleLimitRequestStatusConsole
 
         static void Main(string[] args)
         {
+            ThreadPool.SetMinThreads(130,130);
+            
             DisplayBoard();
+            CallTest2();
 
             while (Console.ReadKey().Key != ConsoleKey.Q)
                 ;
@@ -23,93 +29,106 @@ namespace SampleLimitRequestStatusConsole
             Configuration config = new();
             config.BasePath = _basePath;
             var apiInstance = new RequestRateLimitStatusApi(config);
+            var dataAction = async () =>
+            {
+                List<string> allLines = new();
+                int consoleWidth = GetConsoleWidth();
+                int columnWidth = 0;
+                try
+                {
+                    var status = await apiInstance.ApiRequestRateLimitStatusGetStatusPostAsync();
+                    var statusInfo = await apiInstance.ApiRequestRateLimitStatusGetStatusInfoPostAsync();
+                    if (status != null)
+                    {
+                        allLines.Add($"更新時間: {status.UpdatedTime.ToLocalTime()}  Q:結束");
 
-            Task.Run(async () =>
+                        int columnCount = statusInfo.ContainerTypeInfos.Count;
+                        columnWidth = GetColumnWidth(consoleWidth, columnCount);
+
+                        List<string>[] titleNameColumnsLines = new List<string>[columnCount];
+                        for (int i = 0; i < titleNameColumnsLines.Length; i++)
+                            titleNameColumnsLines[i] = new();
+                        for (var c = 0; c < columnCount; c++)
+                        {
+                            var name = statusInfo.ContainerTypeInfos[c].Name;
+                            var nameStrs = SplitByWidth(name, columnWidth);
+                            foreach (var nameStr in nameStrs)
+                                titleNameColumnsLines[c].Add(PadRight(nameStr, columnWidth));
+                        }
+                        allLines.AddRange(GetPrintingColumnLines(columnCount, columnWidth, titleNameColumnsLines));
+
+                        List<string>[] titleDescriptionColumnsLines = new List<string>[columnCount];
+                        for (int i = 0; i < titleDescriptionColumnsLines.Length; i++)
+                            titleDescriptionColumnsLines[i] = new();
+                        for (var c = 0; c < columnCount; c++)
+                        {
+                            var description = statusInfo.ContainerTypeInfos[c].Description;
+                            var descriptionStrs = SplitByWidth(description, columnWidth);
+                            foreach (var descriptionStr in descriptionStrs)
+                                titleDescriptionColumnsLines[c].Add(PadRight(descriptionStr, columnWidth));
+                        }
+                        allLines.AddRange(GetPrintingColumnLines(columnCount, columnWidth, titleDescriptionColumnsLines));
+
+                        allLines.Add(new string('-', consoleWidth));
+
+                        for (int r = 0; ; r++)
+                        {
+                            List<string>[] containerColumnsLines = new List<string>[columnCount];
+                            for (int i = 0; i < containerColumnsLines.Length; i++)
+                                containerColumnsLines[i] = new();
+
+                            for (int c = 0; c < columnCount; c++)
+                            {
+                                var typeInfo = statusInfo.ContainerTypeInfos[c];
+                                if (typeInfo.Type == null)
+                                    continue;
+                                var type = typeInfo.Type;
+
+                                var containers = status.ContainerTypesContainers[((int)type).ToString() ?? ""];
+                                if (r >= containers.Count)
+                                    continue;
+                                var container = containers[r];
+                                var idStrs = SplitByWidth($"ID [{container.Key}]", columnWidth);
+                                foreach (var idStr in idStrs)
+                                    containerColumnsLines[c].Add(PadRight(idStr, columnWidth));
+                                foreach (var item in container.Items)
+                                {
+                                    string perTimeUnitName =
+                                        item.PerTimeUnit.HasValue ? statusInfo.PerUnitInfos[((int)item.PerTimeUnit.Value).ToString()].Name : "";
+                                    var itemInfoStrs = SplitByWidth($"{item.Capacity}/{item.LimitTimes} [{perTimeUnitName}]", columnWidth);
+                                    foreach (var itemInfoStr in itemInfoStrs)
+                                        containerColumnsLines[c].Add(PadLeft(itemInfoStr, columnWidth));
+                                }
+                            }
+
+                            if (containerColumnsLines.All(n => n.Count == 0))
+                                break;
+                            allLines.AddRange(GetPrintingColumnLines(columnCount, columnWidth, containerColumnsLines));
+                        }
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.ToString());
+                }
+                return (allLines, consoleWidth);
+            };
+            var displayAction = async () =>
             {
                 int preShowLines = 0;
                 while (_alive)
                 {
                     try
                     {
-                        var status = await apiInstance.ApiRequestRateLimitStatusGetStatusPostAsync();
-                        List<string> allLines = new();
-                        int consoleWidth = GetConsoleWidth();
-                        if (status != null)
-                        {
-                            allLines.Add($"更新時間: {status.UpdatedTime.ToLocalTime()}  Q:結束");
+                        var data = await dataAction();
 
-                            int columnCount = status.ContainerTypeInfos.Count;
-
-                            int columnWidth = (consoleWidth - columnCount - 1) / columnCount;
-
-                            List<string>[] titleNameColumnsLines = new List<string>[columnCount];
-                            for (int i = 0; i < titleNameColumnsLines.Length; i++)
-                                titleNameColumnsLines[i] = new();
-                            for (var c = 0; c < columnCount; c++)
-                            {
-                                var name = status.ContainerTypeInfos[c].Name;
-                                var nameStrs = SplitByWidth(name, columnWidth);
-                                foreach (var nameStr in nameStrs)
-                                    titleNameColumnsLines[c].Add(PadRight(nameStr, columnWidth));
-                            }
-                            allLines.AddRange(GetPrintingColumnLines(columnCount, columnWidth, titleNameColumnsLines));
-
-                            List<string>[] titleDescriptionColumnsLines = new List<string>[columnCount];
-                            for (int i = 0; i < titleDescriptionColumnsLines.Length; i++)
-                                titleDescriptionColumnsLines[i] = new();
-                            for (var c = 0; c < columnCount; c++)
-                            {
-                                var description = status.ContainerTypeInfos[c].Description;
-                                var descriptionStrs = SplitByWidth(description, columnWidth);
-                                foreach (var descriptionStr in descriptionStrs)
-                                    titleDescriptionColumnsLines[c].Add(PadRight(descriptionStr, columnWidth));
-                            }
-                            allLines.AddRange(GetPrintingColumnLines(columnCount, columnWidth, titleDescriptionColumnsLines));
-
-                            allLines.Add(new string('-', consoleWidth));
-
-                            for (int r = 0; ; r++)
-                            {
-                                List<string>[] containerColumnsLines = new List<string>[columnCount];
-                                for (int i = 0; i < containerColumnsLines.Length; i++)
-                                    containerColumnsLines[i] = new();
-
-                                for (int c = 0; c < columnCount; c++)
-                                {
-                                    var typeInfo = status.ContainerTypeInfos[c];
-                                    if (typeInfo.Type == null)
-                                        continue;
-                                    var type = typeInfo.Type;
-
-                                    var containers = status.ContainerTypesContainers[((int)type).ToString() ?? ""];
-                                    if (r >= containers.Count)
-                                        continue;
-                                    var container = containers[r];
-                                    var idStrs = SplitByWidth($"ID [{container.Key}]", columnWidth);
-                                    foreach (var idStr in idStrs)
-                                        containerColumnsLines[c].Add(PadRight(idStr, columnWidth));
-                                    foreach (var item in container.Items)
-                                    {
-                                        string perTimeUnitName =
-                                            item.PerTimeUnit.HasValue ? status.PerUnitInfos[((int)item.PerTimeUnit.Value).ToString()].Name : "";
-                                        var itemInfoStrs = SplitByWidth($"{item.Capacity}/{item.LimitTimes} [{perTimeUnitName}]", columnWidth);
-                                        foreach (var itemInfoStr in itemInfoStrs)
-                                            containerColumnsLines[c].Add(PadLeft(itemInfoStr, columnWidth));
-                                    }
-                                }
-
-                                if (containerColumnsLines.All(n => n.Count == 0))
-                                    break;
-                                allLines.AddRange(GetPrintingColumnLines(columnCount, columnWidth, containerColumnsLines));
-                            }
-
-                        }
                         Console.Clear();
-                        for (int i = 0; i < allLines.Count; i++)
-                            Console.WriteLine(allLines[i]);
-                        for (int i = allLines.Count; i < preShowLines; i++)
-                            Console.WriteLine(new string(' ', consoleWidth));
-                        preShowLines = allLines.Count;
+                        for (int i = 0; i < data.allLines.Count; i++)
+                            Console.WriteLine(data.allLines[i]);
+                        for (int i = data.allLines.Count; i < preShowLines; i++)
+                            Console.WriteLine(new string(' ', data.consoleWidth));
+                        preShowLines = data.allLines.Count;
                     }
                     catch (Exception ex)
                     {
@@ -118,7 +137,48 @@ namespace SampleLimitRequestStatusConsole
 
                     SpinWait.SpinUntil(() => !_alive, 100);
                 }
-            });
+            };
+            Task.Run(displayAction);
+
+
+        }
+
+        private static void CallTest2()
+        {
+            Configuration config = new();
+            config.BasePath = _basePath;
+
+            var requestRateLimitStatusApi = new RequestRateLimitStatusApi(config);
+            var countApi = new CountApi(config);
+
+            Stopwatch sw_share = new();
+            sw_share.Start();
+            for (int i = 0; i < 50; i++)
+                Task.Run(async () =>
+                {
+                    while (_alive)
+                    {
+                        var start = sw_share.ElapsedMilliseconds;
+                        try
+                        {
+                            await requestRateLimitStatusApi.ApiRequestRateLimitStatusGetStatusPostAsync();
+
+                            //await countApi.ApiCountGetNormalGetAsync();
+                        }
+                        catch
+                        {
+                        }
+                        var end = sw_share.ElapsedMilliseconds;
+                        var wait = (int)Math.Max(0, 100 - end + start);
+
+                        SpinWait.SpinUntil(() => !_alive, wait);
+                    }
+                });
+        }
+
+        private static int GetColumnWidth(int consoleWidth, int columnCount)
+        {
+            return (consoleWidth - columnCount - 1) / columnCount;
         }
 
         private static int GetConsoleWidth()
@@ -194,6 +254,84 @@ namespace SampleLimitRequestStatusConsole
             int textWidth = GetTextWidth(text);
             var offset = textWidth - text.Length;
             return text.PadLeft(width - offset);
+        }
+
+
+
+        private static async Task CallTest1()
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"---{nameof(CallTest1)}---");
+            Console.ResetColor();
+
+            var dateTimePattern = "yyyy/MM/dd hh:mm:ss.fff tt";
+
+            Stopwatch sw = new();
+
+            try
+            {
+                Configuration config = new Configuration();
+                config.BasePath = _basePath;
+                config.DefaultHeaders.Add("Authorization", "Bearer " + GetToken(1));
+                var apiInstance = new SampleApi(config);
+                var data = "data_example";
+
+                Console.WriteLine($"{nameof(apiInstance.ApiSampleGetLimitGlobal5PreSecondUser3PreSecondGetAsync)}");
+                for (int i = 0; i < 4; i++)
+                {
+                    try
+                    {
+                        await apiInstance.ApiSampleGetLimitGlobal5PreSecondUser3PreSecondGetAsync(data);
+                        Console.WriteLine($"[{DateTime.Now.ToString(dateTimePattern)}] Ok");
+                    }
+                    catch
+                    {
+                        Console.WriteLine($"[{DateTime.Now.ToString(dateTimePattern)}] Fail");
+                    }
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        static string GetTimeStr(int milliseconds)
+        {
+            TimeSpan ts = TimeSpan.FromMilliseconds(milliseconds);
+            return $"{ts.Hours}:{ts.Minutes:D2}:{ts.Seconds:D2}";
+        }
+
+        static string GetToken(int userId)
+        {
+            var signingKey = new SymmetricSecurityKey(GetSecretKey());
+
+            var claims = CreateClaims(userId);
+
+            var jwtSecurityToken = new JwtSecurityToken(
+                issuer: "SampleLimitRequest",
+                audience: "SampleLimitRequest",
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha512)
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+        }
+
+        static byte[] GetSecretKey()
+        {
+            var bytes = Encoding.UTF8.GetBytes("a98dghmnibqutldimpga08hpm3h;ovihdg;029;vty;d0aest0oiassad9pnyvg39wyh08tyvaote");
+            Array.Resize(ref bytes, 64);
+            return bytes;
+        }
+
+        static IEnumerable<Claim> CreateClaims(int userId)
+        {
+            var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, userId.ToString()),
+        };
+            return claims;
         }
 
     }

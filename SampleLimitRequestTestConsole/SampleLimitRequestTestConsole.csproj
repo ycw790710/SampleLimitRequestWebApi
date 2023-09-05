@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\RequestRateLimit\RequestRateLimit.csproj" />
     <ProjectReference Include="..\SampleLimitRequestTestConsole.ServerApis\SampleLimitRequestTestConsole.ServerApis.csproj" />
   </ItemGroup>
 

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SampleLimitRequestWebApi.RequestRateLimits.Components;
 
 namespace SampleLimitRequestWebApi.Controllers;
 
