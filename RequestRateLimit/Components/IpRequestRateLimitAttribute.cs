@@ -1,25 +1,30 @@
 ﻿namespace RequestRateLimit.Components;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, Inherited = true, AllowMultiple = true)]
-public class IpRequestRateLimitAttribute : Attribute, IRequestRateLimitAttribute
+public class IpRequestRateLimitAttribute : RequestRateLimitAttribute
 {
-    public int LimitTimes { get; }
-
-    public RequestRateLimitPerTimeUnit PerTimeUnit { get; }
-
     public IpRequestRateLimitAttribute(int limitTimes, RequestRateLimitPerTimeUnit inputPerTimeUnit)
+        : base(limitTimes, inputPerTimeUnit)
     {
-        var perTimeUnit = IpRequestRateLimitPerTimeUnit.Convert(inputPerTimeUnit);
-        if (limitTimes < perTimeUnit.MinTimes || limitTimes > perTimeUnit.MaxTimes)
-            throw new ArgumentException(
-                $"Invalid {nameof(limitTimes)}, min {perTimeUnit.MinTimes}, max {perTimeUnit.MaxTimes}");
-
-        LimitTimes = limitTimes;
-        PerTimeUnit = inputPerTimeUnit;
     }
 
     public string GetKey(string controllerName, string actionName, IPAddress iPAddress)
     {
         return $"[{iPAddress}] [{controllerName}/{actionName}]";
+    }
+
+    protected override (int MinTimes, int MaxTimes) GetExpectedTimes(RequestRateLimitPerTimeUnit inputPerTimeUnit)
+    {
+        switch (inputPerTimeUnit)
+        {
+            case RequestRateLimitPerTimeUnit.Seconds:
+                return (1, 500);
+            case RequestRateLimitPerTimeUnit.Minutes:
+                return (1, 4000);
+            case RequestRateLimitPerTimeUnit.Hours:
+                return (1, 160000);
+            default:
+                throw new Exception("Miss Type");
+        }
     }
 }
