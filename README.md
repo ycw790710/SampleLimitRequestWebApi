@@ -8,6 +8,9 @@
 ## Web api基礎效能測試 (Project:SampleLimitRequestTestCountConsole)
 ![test count console](sample-test-count-console.png)
 
+## Status Console狀態看板 + 呼叫Status效能測試 (Project:SampleLimitRequestStatusConsole)
+![status console](sample-status-console.png)
+
 ## 附註
 
 ### react vulnerability: nth-check

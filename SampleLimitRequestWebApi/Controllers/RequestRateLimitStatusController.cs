@@ -14,7 +14,7 @@ public class RequestRateLimitStatusController : DefaultControllerBase
     }
 
     [HttpPost]
-    [GlobalRequestRateLimit(5000, RequestRateLimitPerTimeUnit.Seconds)]
+    [GlobalRequestRateLimit(20000, RequestRateLimitPerTimeUnit.Seconds)]
     public ActionResult<RequestRateLimitStatus> GetStatus()
     {
         //var json = _requestRateLimitStatusService.GetStatusJson();
@@ -39,7 +39,7 @@ public class RequestRateLimitStatusController : DefaultControllerBase
     }
 
     [HttpPost]
-    [GlobalRequestRateLimit(5000, RequestRateLimitPerTimeUnit.Seconds)]
+    [GlobalRequestRateLimit(20000, RequestRateLimitPerTimeUnit.Seconds)]
     public ActionResult<RequestRateLimitStatusInfo> GetStatusInfo()
     {
         var jsonBytes = _requestRateLimitStatusService.GetStatusInfoJsonBytes();

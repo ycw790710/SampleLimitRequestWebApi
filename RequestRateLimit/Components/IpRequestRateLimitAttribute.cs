@@ -18,11 +18,11 @@ public class IpRequestRateLimitAttribute : RequestRateLimitAttribute
         switch (inputPerTimeUnit)
         {
             case RequestRateLimitPerTimeUnit.Seconds:
-                return (1, 500);
+                return (1, 2000);
             case RequestRateLimitPerTimeUnit.Minutes:
-                return (1, 4000);
+                return (1, 120000);
             case RequestRateLimitPerTimeUnit.Hours:
-                return (1, 160000);
+                return (1, 7200000);
             default:
                 throw new Exception("Miss Type");
         }

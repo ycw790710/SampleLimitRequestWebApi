@@ -19,11 +19,11 @@ public class UserRequestRateLimitAttribute : RequestRateLimitAttribute
         switch (inputPerTimeUnit)
         {
             case RequestRateLimitPerTimeUnit.Seconds:
-                return (1, 5);
+                return (1, 10);
             case RequestRateLimitPerTimeUnit.Minutes:
-                return (1, 40);
+                return (1, 600);
             case RequestRateLimitPerTimeUnit.Hours:
-                return (1, 1600);
+                return (1, 36000);
             default:
                 throw new Exception("Miss Type");
         }

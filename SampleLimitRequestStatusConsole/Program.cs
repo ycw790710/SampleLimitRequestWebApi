@@ -1,4 +1,6 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Org.OpenAPITools.Api;
 using Org.OpenAPITools.Client;
 using System.Diagnostics;
@@ -12,13 +14,25 @@ namespace SampleLimitRequestStatusConsole
     {
         static bool _alive = true;
         static string _basePath = "https://localhost:7212";
+        static string apiUrl = $"api/RequestRateLimitStatus/GetStatus";
+        static IHost host = null!;
 
         static void Main(string[] args)
         {
-            ThreadPool.SetMinThreads(130,130);
-            
+            var baseThread = 200;
+            var addThread = (int)Math.Min(40, baseThread * 1.4);
+            var totalThread = baseThread + addThread;
+            ThreadPool.SetMinThreads(totalThread, totalThread);
+
+            host = new HostBuilder()
+                .ConfigureServices(services =>
+                {
+                    services.AddHttpClient();
+                })
+                .Build();
+
             DisplayBoard();
-            //CallTest2();
+            CallStatusTest();
 
             while (Console.ReadKey().Key != ConsoleKey.Q)
                 ;
@@ -41,6 +55,7 @@ namespace SampleLimitRequestStatusConsole
                     if (status != null)
                     {
                         allLines.Add($"更新時間: {status.UpdatedTime.ToLocalTime()}  Q:結束");
+                        allLines.Add("Status狀態看板 + 呼叫Status效能測試");
 
                         int columnCount = statusInfo.ContainerTypeInfos.Count;
                         columnWidth = GetColumnWidth(consoleWidth, columnCount);
@@ -143,16 +158,11 @@ namespace SampleLimitRequestStatusConsole
 
         }
 
-        private static void CallTest2()
+        private static void CallStatusTest()
         {
-            Configuration config = new();
-            config.BasePath = _basePath;
-
-            var requestRateLimitStatusApi = new RequestRateLimitStatusApi(config);
-
             Stopwatch sw_share = new();
             sw_share.Start();
-            for (int i = 0; i < 50; i++)
+            for (int taskCount = 0; taskCount < 10; taskCount++)
                 Task.Run(async () =>
                 {
                     while (_alive)
@@ -160,13 +170,33 @@ namespace SampleLimitRequestStatusConsole
                         var start = sw_share.ElapsedMilliseconds;
                         try
                         {
-                            await requestRateLimitStatusApi.ApiRequestRateLimitStatusGetStatusPostAsync();
+                            var httpClientFactory = host.Services.GetRequiredService<IHttpClientFactory>();
+                            List<HttpClient> httpClients = new();
+                            for (int clientCount = 0; clientCount < 20; clientCount++)
+                            {
+                                var httpClient = httpClientFactory.CreateClient();
+                                httpClient.BaseAddress = new Uri(_basePath);
+                                httpClients.Add(httpClient);
+                            }
+
+                            Task[] tasks = new Task[httpClients.Count];
+                            for (var j = 0; j < tasks.Length; j++)
+                            {
+                                var httpClient = httpClients[j];
+                                tasks[j] = httpClient.PostAsync(apiUrl, null);
+                            }
+
+                            await Task.WhenAll(tasks);
+
+                            foreach (var httpClient in httpClients)
+                                httpClient.Dispose();
                         }
-                        catch
+                        catch (Exception ex)
                         {
                         }
                         var end = sw_share.ElapsedMilliseconds;
-                        var wait = (int)Math.Max(0, 100 - end + start);
+                        var interval = 20;
+                        var wait = (int)Math.Max(0, interval - end + start);
 
                         SpinWait.SpinUntil(() => !_alive, wait);
                     }

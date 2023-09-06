@@ -18,11 +18,11 @@ public class GlobalRequestRateLimitAttribute : RequestRateLimitAttribute
         switch (inputPerTimeUnit)
         {
             case RequestRateLimitPerTimeUnit.Seconds:
-                return (1, 5000);
+                return (1, 20000);
             case RequestRateLimitPerTimeUnit.Minutes:
-                return (1, 40000);
+                return (1, 1200000);
             case RequestRateLimitPerTimeUnit.Hours:
-                return (1, 1600000);
+                return (1, 72000000);
             default:
                 throw new Exception("Miss Type");
         }
