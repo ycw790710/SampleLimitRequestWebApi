@@ -9,9 +9,9 @@ public class UserRequestRateLimitAttribute : RequestRateLimitAttribute
     {
     }
 
-    public string GetKey(string controllerName, string actionName, long userId)
+    public string GetKey(string httpMethod, string controllerName, string actionName, long userId)
     {
-        return $"[{userId}] [{controllerName}/{actionName}]";
+        return $"[{userId}] [{httpMethod}] [{controllerName}/{actionName}]";
     }
 
     protected override (int MinTimes, int MaxTimes) GetExpectedTimes(RequestRateLimitPerTimeUnit inputPerTimeUnit)

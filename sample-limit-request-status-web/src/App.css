@@ -1,6 +1,12 @@
 .body {
   margin: 3px;
 }
+.margin1px {
+  margin: 1px;
+}
+.error {
+  color: red;
+}
 .time {
   border-bottom: 1px solid #000;
 }

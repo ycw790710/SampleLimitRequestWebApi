@@ -31,13 +31,14 @@ public class UserRequestRateLimitMiddleware
         var isUserRequestOverLimit = false;
         if (controllerActionDescriptor != null)
         {
+            var httpMethod = context.Request.Method;
             var methodInfo = controllerActionDescriptor.MethodInfo;
             var typeInfo = controllerActionDescriptor.ControllerTypeInfo;
             var controllerName = controllerActionDescriptor.ControllerName;
             var actionName = controllerActionDescriptor.ActionName;
 
             isUserRequestOverLimit =
-            _requestRateLimitService.IsUserRequestOverLimit(methodInfo,
+            _requestRateLimitService.IsUserRequestOverLimit(httpMethod, methodInfo,
                 typeInfo, controllerName, actionName, userId, cancellationToken);
         }
 

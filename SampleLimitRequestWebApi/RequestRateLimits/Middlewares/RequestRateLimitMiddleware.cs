@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc.Controllers;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.ActionConstraints;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using RequestRateLimit.Services;
 
 namespace SampleLimitRequestWebApi.RequestRateLimits.Middlewares;
@@ -23,13 +26,14 @@ public class RequestRateLimitMiddleware
             context.GetEndpoint()?.Metadata.GetMetadata<ControllerActionDescriptor>();
         if (controllerActionDescriptor != null)
         {
+            var httpMethod = context.Request.Method;
             var methodInfo = controllerActionDescriptor.MethodInfo;
             var typeInfo = controllerActionDescriptor.ControllerTypeInfo;
             var controllerName = controllerActionDescriptor.ControllerName;
             var actionName = controllerActionDescriptor.ActionName;
 
             isRequestOverLimit =
-                _requestRateLimitService.IsRequestOverLimit(methodInfo,
+                _requestRateLimitService.IsRequestOverLimit(httpMethod, methodInfo,
                 typeInfo, controllerName, actionName, context.Connection.RemoteIpAddress,
                 requestAborted);
         }

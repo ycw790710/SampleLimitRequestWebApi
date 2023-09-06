@@ -3,11 +3,9 @@ import "./App.css";
 import {
   RequestRateLimitStatusApi,
   RequestRateLimitStatusInfo,
-  CountApi,
 } from "./apis/servers";
 import { RequestRateLimitStatus } from "./apis/servers";
 import { useApiConfiguration } from "./status-store/api-configuration-store";
-import { ApiConfiguration } from "./apis/api-configuration";
 
 const dateTimeOptions: Intl.DateTimeFormatOptions = {
   year: "numeric",
@@ -20,8 +18,6 @@ const dateTimeOptions: Intl.DateTimeFormatOptions = {
 };
 
 function App() {
-  console.log("Render App");
-
   const { apiConfiguration, setApiConfiguration } = useApiConfiguration();
 
   const requestRateLimitStatusApi = useMemo(() => {
@@ -34,6 +30,10 @@ function App() {
   const [statusInfoData, setStatusInfoData] =
     useState<RequestRateLimitStatusInfo>();
   const [statusInfoDataError, setStatusInfoDataError] = useState<string>();
+
+  const [selectedContainerTypes, setSelectedContainerTypes] = useState<
+    string[]
+  >([]);
 
   const refresh = () => {
     setReload((state) => state + 1);
@@ -60,14 +60,6 @@ function App() {
     };
   }, [statusData, fetchData, reload]);
 
-  // useEffect(() => {
-  //   const intervalId = setInterval(fetchData, 50);
-
-  //   return () => {
-  //     clearInterval(intervalId);
-  //   };
-  // }, []);
-
   useEffect(() => {
     if (!statusInfoData) {
       const fetchInfoData = async () => {
@@ -77,6 +69,11 @@ function App() {
             .apiRequestRateLimitStatusGetStatusInfoPost()
             .then((data) => {
               setStatusInfoData(data);
+              setSelectedContainerTypes(
+                data.containerTypeInfos?.map((n) => n.type?.toString() ?? "") ??
+                  []
+              );
+              console.log("setStatusInfoData");
             });
         } catch (error) {
           setStatusInfoDataError("[ERROR InfoData]");
@@ -87,60 +84,110 @@ function App() {
     }
   }, [statusInfoData, requestRateLimitStatusApi, reload]);
 
+  const onChangeContainerType = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const dataValue = event.target.getAttribute("data-value") as string;
+
+      setSelectedContainerTypes((state) => {
+        const nextState: string[] = state.filter((n) => n !== dataValue);
+        if (nextState.length === state.length) {
+          nextState.push(dataValue);
+        }
+        console.log(nextState);
+
+        return nextState;
+      });
+    },
+    []
+  );
+
   return (
     <div className={"body"}>
       <div className={"time"}>
-        <button onClick={refresh}>更新</button>
+        <button onClick={refresh} className={"margin1px"}>
+          更新
+        </button>
         更新時間: {statusData?.updatedTime?.toLocaleString([], dateTimeOptions)}
       </div>
-      <div>
+      <div className={"error"}>
         {statusInfoDataError}
         {statusDataError}
       </div>
+      <div className={"column-container"}>
+        <div className={"column"}>
+          {statusInfoData?.containerTypeInfos?.map((option) => (
+            <div key={option.type}>
+              <label
+                htmlFor={"containerTypeInfo" + option.type?.toString() ?? ""}
+              >
+                {option.name ?? ""}
+              </label>
+              <input
+                id={"containerTypeInfo" + option.type?.toString() ?? ""}
+                type="checkbox"
+                data-value={option.type?.toString() ?? ""}
+                checked={selectedContainerTypes?.includes(
+                  option.type?.toString() ?? ""
+                )}
+                onChange={onChangeContainerType}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
       <div className={"column-container column-title"}>
-        {statusInfoData?.containerTypeInfos?.map((n) => (
-          <div key={n.type} className={"column text"}>
-            {n.name}
-          </div>
-        ))}
-      </div>
-      <div className={"column-container"}>
-        {statusInfoData?.containerTypeInfos?.map((n) => (
-          <div key={n.type} className={"column text"}>
-            {n.description}
-          </div>
-        ))}
-      </div>
-      <div className={"column-container"}>
-        {statusInfoData?.containerTypeInfos?.map((n) => (
-          <div key={n.type} className={"column"}>
-            {statusData?.containerTypesContainers?.[
-              n.type?.toString() ?? ""
-            ].map((n) => (
-              <div key={n.key} className={"row"}>
-                <div className={"status-statuscontainer-item-id text"}>
-                  ID [{n.key}]
-                </div>
-                <div>
-                  {n.items?.map((n) => (
-                    <div
-                      key={n.perTimeUnit}
-                      className={"status-statuscontainer-item-info text"}
-                    >
-                      {n.capacity}/{n.limitTimes} [
-                      {
-                        statusInfoData?.perUnitInfos?.[
-                          n.perTimeUnit?.toString() ?? ""
-                        ].name
-                      }
-                      ]
-                    </div>
-                  ))}
-                </div>
+        {statusInfoData?.containerTypeInfos?.map(
+          (n) =>
+            selectedContainerTypes.includes(n.type?.toString() ?? "") && (
+              <div key={n.type} className={"column text"}>
+                {n.name}
               </div>
-            ))}
-          </div>
-        ))}
+            )
+        )}
+      </div>
+      <div className={"column-container"}>
+        {statusInfoData?.containerTypeInfos?.map(
+          (n) =>
+            selectedContainerTypes.includes(n.type?.toString() ?? "") && (
+              <div key={n.type} className={"column text"}>
+                {n.description}
+              </div>
+            )
+        )}
+      </div>
+      <div className={"column-container"}>
+        {statusInfoData?.containerTypeInfos?.map(
+          (n) =>
+            selectedContainerTypes.includes(n.type?.toString() ?? "") && (
+              <div key={n.type} className={"column"}>
+                {statusData?.containerTypesContainers?.[
+                  n.type?.toString() ?? ""
+                ].map((n) => (
+                  <div key={n.key} className={"row"}>
+                    <div className={"status-statuscontainer-item-id text"}>
+                      ID [{n.key}]
+                    </div>
+                    <div>
+                      {n.items?.map((n) => (
+                        <div
+                          key={n.perTimeUnit}
+                          className={"status-statuscontainer-item-info text"}
+                        >
+                          {n.capacity}/{n.limitTimes} [
+                          {
+                            statusInfoData?.perUnitInfos?.[
+                              n.perTimeUnit?.toString() ?? ""
+                            ].name
+                          }
+                          ]
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
+        )}
       </div>
     </div>
   );

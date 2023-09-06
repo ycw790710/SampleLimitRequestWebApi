@@ -8,9 +8,9 @@ public class GlobalRequestRateLimitAttribute : RequestRateLimitAttribute
     {
     }
 
-    public string GetKey(string controllerName, string actionName)
+    public string GetKey(string httpMethod, string controllerName, string actionName)
     {
-        return $"[{controllerName}/{actionName}]";
+        return $"[{httpMethod}] [{controllerName}/{actionName}]";
     }
 
     protected override (int MinTimes, int MaxTimes) GetExpectedTimes(RequestRateLimitPerTimeUnit inputPerTimeUnit)

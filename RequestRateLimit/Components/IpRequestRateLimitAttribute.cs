@@ -8,9 +8,9 @@ public class IpRequestRateLimitAttribute : RequestRateLimitAttribute
     {
     }
 
-    public string GetKey(string controllerName, string actionName, IPAddress iPAddress)
+    public string GetKey(string httpMethod, string controllerName, string actionName, IPAddress iPAddress)
     {
-        return $"[{iPAddress}] [{controllerName}/{actionName}]";
+        return $"[{iPAddress}] [{httpMethod}] [{controllerName}/{actionName}]";
     }
 
     protected override (int MinTimes, int MaxTimes) GetExpectedTimes(RequestRateLimitPerTimeUnit inputPerTimeUnit)

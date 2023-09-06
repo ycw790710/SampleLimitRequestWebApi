@@ -165,7 +165,7 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
         }
     }
 
-    public bool Valid(MethodInfo methodInfo, TypeInfo typeInfo,
+    public bool Valid(string httpMethod, MethodInfo methodInfo, TypeInfo typeInfo,
         string controllerName, string actionName, IPAddress remoteIpAddress)
     {
         var valid = true;
@@ -176,7 +176,7 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
             .Select(n => (GlobalRequestRateLimitAttribute)n));
         foreach (var globalActionRequestRateLimit in globalActionRequestRateLimits)
         {
-            var key = globalActionRequestRateLimit.GetKey(controllerName, actionName);
+            var key = globalActionRequestRateLimit.GetKey(httpMethod, controllerName, actionName);
             var perTimeUnit = globalActionRequestRateLimit.PerTimeUnit;
             var limitTimes = globalActionRequestRateLimit.LimitTimes;
             valid &= Valid(RequestRateLimitType.GlobalAction, key, perTimeUnit, limitTimes);
@@ -188,7 +188,7 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
             .Select(n => (GlobalRequestRateLimitAttribute)n));
         foreach (var globalControllerRequestRateLimit in globalControllerRequestRateLimits)
         {
-            var key = globalControllerRequestRateLimit.GetKey(controllerName, "");
+            var key = globalControllerRequestRateLimit.GetKey(httpMethod, controllerName, "");
             var perTimeUnit = globalControllerRequestRateLimit.PerTimeUnit;
             var limitTimes = globalControllerRequestRateLimit.LimitTimes;
             valid &= Valid(RequestRateLimitType.GlobalController, key, perTimeUnit, limitTimes);
@@ -200,7 +200,7 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
             .Select(n => (IpRequestRateLimitAttribute)n));
         foreach (var ipActionRequestRateLimit in ipActionRequestRateLimits)
         {
-            var key = ipActionRequestRateLimit.GetKey(controllerName, actionName, remoteIpAddress);
+            var key = ipActionRequestRateLimit.GetKey(httpMethod, controllerName, actionName, remoteIpAddress);
             var perTimeUnit = ipActionRequestRateLimit.PerTimeUnit;
             var limitTimes = ipActionRequestRateLimit.LimitTimes;
             valid &= Valid(RequestRateLimitType.Ip, key, perTimeUnit, limitTimes);
@@ -212,7 +212,7 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
             .Select(n => (IpRequestRateLimitAttribute)n));
         foreach (var ipControllerRequestRateLimit in ipControllerRequestRateLimits)
         {
-            var key = ipControllerRequestRateLimit.GetKey(controllerName, "", remoteIpAddress);
+            var key = ipControllerRequestRateLimit.GetKey(httpMethod, controllerName, "", remoteIpAddress);
             var perTimeUnit = ipControllerRequestRateLimit.PerTimeUnit;
             var limitTimes = ipControllerRequestRateLimit.LimitTimes;
             valid &= Valid(RequestRateLimitType.Ip, key, perTimeUnit, limitTimes);
@@ -221,7 +221,7 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
         return valid;
     }
 
-    public bool ValidUser(MethodInfo methodInfo, TypeInfo typeInfo,
+    public bool ValidUser(string httpMethod, MethodInfo methodInfo, TypeInfo typeInfo,
         string controllerName, string actionName, long userId)
     {
         var valid = true;
@@ -232,7 +232,7 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
             .Select(n => (UserRequestRateLimitAttribute)n));
         foreach (var userActionRequestRateLimit in userActionRequestRateLimits)
         {
-            var key = userActionRequestRateLimit.GetKey(controllerName, actionName, userId);
+            var key = userActionRequestRateLimit.GetKey(httpMethod, controllerName, actionName, userId);
             var perTimeUnit = userActionRequestRateLimit.PerTimeUnit;
             var limitTimes = userActionRequestRateLimit.LimitTimes;
             valid &= Valid(RequestRateLimitType.User, key, perTimeUnit, limitTimes);
@@ -244,7 +244,7 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
             .Select(n => (UserRequestRateLimitAttribute)n));
         foreach (var userControllerRequestRateLimit in userControllerRequestRateLimits)
         {
-            var key = userControllerRequestRateLimit.GetKey(controllerName, "", userId);
+            var key = userControllerRequestRateLimit.GetKey(httpMethod, controllerName, "", userId);
             var perTimeUnit = userControllerRequestRateLimit.PerTimeUnit;
             var limitTimes = userControllerRequestRateLimit.LimitTimes;
             valid &= Valid(RequestRateLimitType.User, key, perTimeUnit, limitTimes);
