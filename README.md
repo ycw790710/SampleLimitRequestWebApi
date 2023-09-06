@@ -2,8 +2,11 @@
 
 # 未完成
 
-## Service基礎效能測試
-![外觀](sample-test-console.png)
+## Service基礎效能測試 (Project:SampleLimitRequestTestConsole)
+![test console](sample-test-console.png)
+
+## Web api基礎效能測試 (Project:SampleLimitRequestTestCountConsole)
+![test count console](sample-test-count-console.png)
 
 ## 附註
 
@@ -17,3 +20,7 @@
  * https://github.com/OpenAPITools/openapi-generator#13---download-jar
 * 指令, 使用http不使用https
  * java -jar openapi-generator-cli.jar generate -i <swagger.json的http網址> -g csharp -o SampleLimitRequestTestConsole.ServerApis
+
+### 使用openapi-generator作stress testing問題
+* https://learn.microsoft.com/zh-tw/dotnet/architecture/microservices/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
+* 在dot net 6, 應該是httpclient使用方式關係. 使用httpclientfactory建立的httpclient可以正常的使用stress testing

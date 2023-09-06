@@ -1,6 +1,7 @@
-﻿using Org.OpenAPITools.Api;
-using Org.OpenAPITools.Client;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System.Diagnostics;
+using System.Net.Http.Json;
 
 namespace SampleLimitRequestTestCountConsole
 {
@@ -8,20 +9,24 @@ namespace SampleLimitRequestTestCountConsole
     {
         static bool _alive = true;
         static string _basePath = "https://localhost:7212";
-        static int globalCount = 0;
+        static string apiUrl = $"api/Count/Get_Normal";
+        static IHost host = null!;
 
         static void Main(string[] args)
         {
-            ThreadPool.SetMinThreads(130, 130);
+            var baseThread = 200;
+            var addThread = (int)Math.Min(40, baseThread * 1.4);
+            var totalThread = baseThread + addThread;
+            ThreadPool.SetMinThreads(totalThread, totalThread);
+            host = new HostBuilder()
+                .ConfigureServices(services =>
+                {
+                    services.AddHttpClient();
+                })
+                .Build();
 
             Display();
             TestCount();
-            // ctrl+F5:
-            //  if too many timeout (5000 call one second, 10~30 seconds)
-            //  , openapi-generator client Exception:
-            // 'Org.OpenAPITools.Client.ApiException:
-            //   Error calling ApiCountGetNormalGet: 一次只能用一個通訊端位址 (通訊協定/網路位址/連接埠)。 (localhost:7212)'
-            // 或許不適合用來做壓力測試.
 
             while (Console.ReadKey().Key != ConsoleKey.Q)
                 ;
@@ -29,11 +34,28 @@ namespace SampleLimitRequestTestCountConsole
 
         private static void Display()
         {
-            Task.Run(() => {
+            Task.Run(async() => {
+                var httpClientFactory = host.Services.GetRequiredService<IHttpClientFactory>();
                 while (_alive)
                 {
-                    Console.Clear();
-                    Console.WriteLine(globalCount);
+                    try
+                    {
+                        var httpClient = httpClientFactory.CreateClient();
+                        httpClient.BaseAddress = new Uri(_basePath);
+
+                        var response = await httpClient.GetAsync(apiUrl);
+                        var count = await response.Content.ReadFromJsonAsync<int>();
+                        httpClient.Dispose();
+
+                        Console.Clear();
+                        Console.WriteLine("Web Api 基礎效能測試");
+                        Console.WriteLine(DateTime.Now.ToString("更新時間 yyyy/MM/dd HH:mm:ss.fff"));
+                        Console.WriteLine(count +"/ per sec");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
                     SpinWait.SpinUntil(() => !_alive, 100);
                 }
             });
@@ -44,37 +66,41 @@ namespace SampleLimitRequestTestCountConsole
 
             Stopwatch sw_share = new();
             sw_share.Start();
-            for (int i = 0; i < 50; i++)
+            for (int taskCount = 0; taskCount < 10; taskCount++)
                 Task.Run(async () =>
                 {
-                    Configuration config = new();
-                    config.BasePath = _basePath;
-                    var countApi = new CountApi(config);
-                    int fallCount = 0;
                     while (_alive)
                     {
                         var start = sw_share.ElapsedMilliseconds;
                         try
                         {
-                            var count = await countApi.ApiCountGetNormalGetAsync();
-                            Interlocked.Exchange(ref globalCount, count);
+                            var httpClientFactory = host.Services.GetRequiredService<IHttpClientFactory>();
+                            List<HttpClient> httpClients = new();
+                            for (int clientCount = 0; clientCount < 20; clientCount++)
+                            {
+                                var httpClient = httpClientFactory.CreateClient();
+                                httpClient.BaseAddress = new Uri(_basePath);
+                                httpClients.Add(httpClient);
+                            }
+
+                            Task[] tasks = new Task[httpClients.Count];
+                            for (var j = 0; j < tasks.Length; j++)
+                            {
+                                var httpClient = httpClients[j];
+                                tasks[j] = httpClient.GetAsync(apiUrl);
+                            }
+
+                            await Task.WhenAll(tasks);
+
+                            foreach (var httpClient in httpClients)
+                                httpClient.Dispose();
                         }
                         catch (Exception ex)
                         {
-                            fallCount++;
-                            if (fallCount > 10)
-                            {
-                                _alive = false;
-                                Console.WriteLine(ex.ToString());
-                                break;
-                            }
-                            config = new();
-                            config.BasePath = _basePath;
-                            countApi = new CountApi(config);
                         }
                         var end = sw_share.ElapsedMilliseconds;
-                        var interval = 10;
-                        var wait = (int)Math.Min(interval, Math.Max(0, interval - end + start));
+                        var interval = 20;
+                        var wait = (int)Math.Max(0, interval - end + start);
 
                         SpinWait.SpinUntil(() => !_alive, wait);
                     }
