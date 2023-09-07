@@ -6,6 +6,7 @@ import {
 } from "./apis/servers";
 import { RequestRateLimitStatus } from "./apis/servers";
 import { useApiConfiguration } from "./status-store/api-configuration-store";
+import { HighlightText } from "./apis/components/HighlightText";
 
 const dateTimeOptions: Intl.DateTimeFormatOptions = {
   year: "numeric",
@@ -31,9 +32,16 @@ function App() {
     useState<RequestRateLimitStatusInfo>();
   const [statusInfoDataError, setStatusInfoDataError] = useState<string>();
 
+  const [containerTypeOptions, setContainerTypeOptions] = useState<
+    { name: string; val: string }[]
+  >([]);
   const [selectedContainerTypes, setSelectedContainerTypes] = useState<
     string[]
   >([]);
+
+  const [statusContainerItemfilters, setStatusContainerItemfilters] = useState<{
+    obj: { [key: string]: string };
+  }>();
 
   const refresh = () => {
     setReload((state) => state + 1);
@@ -69,10 +77,19 @@ function App() {
             .apiRequestRateLimitStatusGetStatusInfoPost()
             .then((data) => {
               setStatusInfoData(data);
-              setSelectedContainerTypes(
-                data.containerTypeInfos?.map((n) => n.type?.toString() ?? "") ??
-                  []
-              );
+              const options =
+                data.containerTypeInfos?.map((n) => ({
+                  name: n.name ?? "",
+                  val: n.type?.toString() ?? "",
+                })) ?? [];
+              setContainerTypeOptions(options);
+              setSelectedContainerTypes(options.map((n) => n.val));
+
+              const filters: any = {};
+              options.forEach((n) => {
+                filters[n.val] = [];
+              });
+              setStatusContainerItemfilters({ obj: filters });
               console.log("setStatusInfoData");
             });
         } catch (error) {
@@ -101,6 +118,20 @@ function App() {
     []
   );
 
+  const onChangeStatusContainerItemfilters = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const val = event.target.value;
+      const dataKey = event.target.getAttribute("data-key") as string;
+      setStatusContainerItemfilters((state) => {
+        if (state === undefined) return undefined;
+        const netState = { ...state };
+        netState.obj[dataKey] = val.toLowerCase();
+        return netState;
+      });
+    },
+    []
+  );
+
   return (
     <div className={"body"}>
       <div className={"time"}>
@@ -115,20 +146,16 @@ function App() {
       </div>
       <div className={"column-container"}>
         <div className={"column"}>
-          {statusInfoData?.containerTypeInfos?.map((option) => (
-            <div key={option.type}>
-              <label
-                htmlFor={"containerTypeInfo" + option.type?.toString() ?? ""}
-              >
+          {containerTypeOptions.map((option) => (
+            <div key={option.val}>
+              <label htmlFor={"containerTypeInfoOption_" + option.val}>
                 {option.name ?? ""}
               </label>
               <input
-                id={"containerTypeInfo" + option.type?.toString() ?? ""}
+                id={"containerTypeInfoOption_" + option.val}
                 type="checkbox"
-                data-value={option.type?.toString() ?? ""}
-                checked={selectedContainerTypes?.includes(
-                  option.type?.toString() ?? ""
-                )}
+                data-value={option.val}
+                checked={selectedContainerTypes.includes(option.val)}
                 onChange={onChangeContainerType}
               />
             </div>
@@ -140,7 +167,12 @@ function App() {
           (n) =>
             selectedContainerTypes.includes(n.type?.toString() ?? "") && (
               <div key={n.type} className={"column text"}>
-                {n.name}
+                <div className={"tooltip"}>
+                  {n.name}
+                  {n.description && (
+                    <span className={"tooltiptext"}>{n.description}</span>
+                  )}
+                </div>
               </div>
             )
         )}
@@ -150,7 +182,14 @@ function App() {
           (n) =>
             selectedContainerTypes.includes(n.type?.toString() ?? "") && (
               <div key={n.type} className={"column text"}>
-                {n.description}
+                <input
+                  data-key={n.type?.toString() ?? ""}
+                  placeholder={"過濾Key"}
+                  value={
+                    statusContainerItemfilters?.obj[n.type?.toString() ?? ""]
+                  }
+                  onChange={onChangeStatusContainerItemfilters}
+                />
               </div>
             )
         )}
@@ -162,29 +201,64 @@ function App() {
               <div key={n.type} className={"column"}>
                 {statusData?.containerTypesContainers?.[
                   n.type?.toString() ?? ""
-                ].map((n) => (
-                  <div key={n.key} className={"row"}>
-                    <div className={"status-statuscontainer-item-id text"}>
-                      ID [{n.key}]
-                    </div>
-                    <div>
-                      {n.items?.map((n) => (
+                ].map(
+                  (n) =>
+                    n.key
+                      ?.toLowerCase()
+                      .includes(
+                        statusContainerItemfilters?.obj[
+                          n.type?.toString() ?? ""
+                        ] ?? ""
+                      ) && (
+                      <div key={n.key} className={"row"}>
                         <div
-                          key={n.perTimeUnit}
-                          className={"status-statuscontainer-item-info text"}
-                        >
-                          {n.capacity}/{n.limitTimes} [
-                          {
-                            statusInfoData?.perUnitInfos?.[
-                              n.perTimeUnit?.toString() ?? ""
-                            ].name
+                          className={
+                            "status-statuscontainer-item-id text tooltip"
                           }
-                          ]
+                        >
+                          <code className={"code"}>
+                            <HighlightText
+                              text={n.key}
+                              keyword={
+                                statusContainerItemfilters?.obj[
+                                  n.type?.toString() ?? ""
+                                ] ?? ""
+                              }
+                            />
+                          </code>
+                          <span className={"tooltiptext"}>Key</span>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                        <div>
+                          {n.items?.map((n) => (
+                            <div
+                              key={n.perTimeUnit}
+                              className={
+                                "status-statuscontainer-item-info text"
+                              }
+                            >
+                              <span>
+                                (
+                                {
+                                  statusInfoData?.perUnitInfos?.[
+                                    n.perTimeUnit?.toString() ?? ""
+                                  ].name
+                                }
+                                )
+                              </span>
+                              <span className={"tooltip"}>
+                                <code className={"code"}>
+                                  {n.capacity}/{n.limitTimes}
+                                </code>
+                                <span className={"tooltiptext"}>
+                                  使用數/限制
+                                </span>
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                )}
               </div>
             )
         )}

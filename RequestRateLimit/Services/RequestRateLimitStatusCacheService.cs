@@ -38,8 +38,8 @@ public class RequestRateLimitStatusCacheService : IRequestRateLimitStatusCacheSe
     {
         List<RequestRateLimitStatusContainerTypeInfo> list = new()
         {
-            new(RequestRateLimitStatusContainerType.GlobalController, "Global Controller速率限制", "包含其所有的Requests"),
-            new(RequestRateLimitStatusContainerType.GlobalAction, "Global Action速率限制", "包含其所有的Requests"),
+            new(RequestRateLimitStatusContainerType.GlobalController, "Global Controller速率限制", "包含Controller的全部Action的全部Requests"),
+            new(RequestRateLimitStatusContainerType.GlobalAction, "Global Action速率限制", "包含Action的全部Requests"),
             new(RequestRateLimitStatusContainerType.Ip, "Ip速率限制", ""),
             new(RequestRateLimitStatusContainerType.User, "User速率限制", "")
         };

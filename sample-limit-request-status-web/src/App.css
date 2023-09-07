@@ -34,14 +34,46 @@
   border-bottom: none;
 }
 
+.text {
+  padding: 1px;
+  word-break: break-all;
+}
+
+.tooltip {
+  position: relative;
+  border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+
+  position: absolute;
+  z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+.code {
+  background-color: #eee;
+  border-radius: 3px;
+}
+
+.status-statuscontainer-item {
+  font-size: 10px;
+}
+
 .status-statuscontainer-item-id {
   text-align: left;
 }
 
 .status-statuscontainer-item-info {
   text-align: right;
-}
-.text {
-  padding: 1px;
-  word-break: break-all;
 }
