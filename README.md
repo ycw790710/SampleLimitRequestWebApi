@@ -35,6 +35,7 @@ public class LimitIpAction3sController : ControllerBase
   * SampleLimitRequestTestCountConsole
   * SampleLimitRequestWebApi
 * 使用'不偵錯'測試效能
+
 ![test count console](sample-images/sample-test-count-console.png)
 
 ## Status Console狀態看板 + 呼叫Status效能測試
