@@ -33,18 +33,18 @@ namespace Org.OpenAPITools.Model
     {
 
         /// <summary>
-        /// Gets or Sets PerTimeUnit
+        /// Gets or Sets Unit
         /// </summary>
-        [DataMember(Name = "perTimeUnit", EmitDefaultValue = false)]
-        public RequestRateLimitStatusPerTimeUnit? PerTimeUnit { get; set; }
+        [DataMember(Name = "unit", EmitDefaultValue = false)]
+        public RequestRateLimitStatusPerTimeUnit? Unit { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestRateLimitStatusPerTimeUnitInfo" /> class.
         /// </summary>
-        /// <param name="perTimeUnit">perTimeUnit.</param>
+        /// <param name="unit">unit.</param>
         /// <param name="name">name.</param>
-        public RequestRateLimitStatusPerTimeUnitInfo(RequestRateLimitStatusPerTimeUnit? perTimeUnit = default(RequestRateLimitStatusPerTimeUnit?), string name = default(string))
+        public RequestRateLimitStatusPerTimeUnitInfo(RequestRateLimitStatusPerTimeUnit? unit = default(RequestRateLimitStatusPerTimeUnit?), string name = default(string))
         {
-            this.PerTimeUnit = perTimeUnit;
+            this.Unit = unit;
             this.Name = name;
         }
 
@@ -62,7 +62,7 @@ namespace Org.OpenAPITools.Model
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("class RequestRateLimitStatusPerTimeUnitInfo {\n");
-            sb.Append("  PerTimeUnit: ").Append(PerTimeUnit).Append("\n");
+            sb.Append("  Unit: ").Append(Unit).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -100,8 +100,8 @@ namespace Org.OpenAPITools.Model
             }
             return 
                 (
-                    this.PerTimeUnit == input.PerTimeUnit ||
-                    this.PerTimeUnit.Equals(input.PerTimeUnit)
+                    this.Unit == input.Unit ||
+                    this.Unit.Equals(input.Unit)
                 ) && 
                 (
                     this.Name == input.Name ||
@@ -119,7 +119,7 @@ namespace Org.OpenAPITools.Model
             unchecked // Overflow is fine, just wrap
             {
                 int hashCode = 41;
-                hashCode = (hashCode * 59) + this.PerTimeUnit.GetHashCode();
+                hashCode = (hashCode * 59) + this.Unit.GetHashCode();
                 if (this.Name != null)
                 {
                     hashCode = (hashCode * 59) + this.Name.GetHashCode();

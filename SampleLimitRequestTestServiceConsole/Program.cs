@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 
-namespace SampleLimitRequestTestConsole
+namespace SampleLimitRequestTestServiceConsole
 {
     internal class Program
     {
@@ -95,10 +95,10 @@ namespace SampleLimitRequestTestConsole
                         if (obj == null)
                             return;
 
-                        foreach (var containerList in obj.containerTypesContainers)
+                        foreach (var containerList in obj.typesContainers)
                         {
                             var containerTypeInfo =
-                                statusInfo.containerTypeInfos.First(n => (int)n.type == containerList.Key);
+                                statusInfo.typeInfos.First(n => (int)n.type == containerList.Key);
                             alllines.Add($"[{containerTypeInfo.name}]");
                             foreach (var container in containerList.Value)
                             {
@@ -112,8 +112,8 @@ namespace SampleLimitRequestTestConsole
                                     if (item == null)
                                         continue;
 
-                                    var perTimeUnitinfo = statusInfo.perUnitInfos[(int)item.perTimeUnit];
-                                    alllines.Add($"\t\t{item.capacity}/{item.limitTimes} [{perTimeUnitinfo.name}]");
+                                    var perTimeUnitinfo = statusInfo.unitUnitInfos[(int)item.unit];
+                                    alllines.Add($"\t\t{item.amount}/{item.limit} [{perTimeUnitinfo.name}]");
                                 }
 
                             }
@@ -145,7 +145,7 @@ namespace SampleLimitRequestTestConsole
                 var startTime = sw_share.ElapsedMilliseconds;
                 try
                 {
-                    requestRateLimitService.IsRequestOverLimit(
+                    requestRateLimitService.IsRequestOverLimit("GET",
                         methodInfo, typeInfo, controllerName, actionName, ipAddress);
                 }
                 catch (Exception ex)

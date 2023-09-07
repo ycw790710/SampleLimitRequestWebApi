@@ -329,33 +329,33 @@ components:
       additionalProperties: false
       example:
         updatedTime: 2000-01-23T04:56:07.000+00:00
-        containerTypesContainers:
+        typesContainers:
           key:
           - updatedTime: 2000-01-23T04:56:07.000+00:00
             type: null
             items:
-            - perTimeUnit: null
-              limitTimes: 0
-              capacity: 6
-            - perTimeUnit: null
-              limitTimes: 0
-              capacity: 6
+            - unit: null
+              amount: 6
+              limit: 0
+            - unit: null
+              amount: 6
+              limit: 0
             key: key
           - updatedTime: 2000-01-23T04:56:07.000+00:00
             type: null
             items:
-            - perTimeUnit: null
-              limitTimes: 0
-              capacity: 6
-            - perTimeUnit: null
-              limitTimes: 0
-              capacity: 6
+            - unit: null
+              amount: 6
+              limit: 0
+            - unit: null
+              amount: 6
+              limit: 0
             key: key
       properties:
         updatedTime:
           format: date-time
           type: string
-        containerTypesContainers:
+        typesContainers:
           additionalProperties:
             items:
               $ref: '#/components/schemas/RequestRateLimitStatusContainer'
@@ -369,12 +369,12 @@ components:
         updatedTime: 2000-01-23T04:56:07.000+00:00
         type: null
         items:
-        - perTimeUnit: null
-          limitTimes: 0
-          capacity: 6
-        - perTimeUnit: null
-          limitTimes: 0
-          capacity: 6
+        - unit: null
+          amount: 6
+          limit: 0
+        - unit: null
+          amount: 6
+          limit: 0
         key: key
       properties:
         key:
@@ -394,16 +394,16 @@ components:
     RequestRateLimitStatusContainerItem:
       additionalProperties: false
       example:
-        perTimeUnit: null
-        limitTimes: 0
-        capacity: 6
+        unit: null
+        amount: 6
+        limit: 0
       properties:
-        perTimeUnit:
+        unit:
           $ref: '#/components/schemas/RequestRateLimitStatusPerTimeUnit'
-        limitTimes:
+        limit:
           format: int32
           type: integer
-        capacity:
+        amount:
           format: int32
           type: integer
       type: object
@@ -434,24 +434,24 @@ components:
     RequestRateLimitStatusInfo:
       additionalProperties: false
       example:
-        containerTypeInfos:
-        - name: name
-          description: description
-          type: null
-        - name: name
-          description: description
-          type: null
-        perUnitInfos:
+        unitUnitInfos:
           key:
-            perTimeUnit: null
+            unit: null
             name: name
+        typeInfos:
+        - name: name
+          description: description
+          type: null
+        - name: name
+          description: description
+          type: null
       properties:
-        containerTypeInfos:
+        typeInfos:
           items:
             $ref: '#/components/schemas/RequestRateLimitStatusContainerTypeInfo'
           nullable: true
           type: array
-        perUnitInfos:
+        unitUnitInfos:
           additionalProperties:
             $ref: '#/components/schemas/RequestRateLimitStatusPerTimeUnitInfo'
           nullable: true
@@ -467,10 +467,10 @@ components:
     RequestRateLimitStatusPerTimeUnitInfo:
       additionalProperties: false
       example:
-        perTimeUnit: null
+        unit: null
         name: name
       properties:
-        perTimeUnit:
+        unit:
           $ref: '#/components/schemas/RequestRateLimitStatusPerTimeUnit'
         name:
           nullable: true

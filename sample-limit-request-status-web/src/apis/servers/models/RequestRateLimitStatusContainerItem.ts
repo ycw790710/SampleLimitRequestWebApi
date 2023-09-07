@@ -31,19 +31,19 @@ export interface RequestRateLimitStatusContainerItem {
      * @type {RequestRateLimitStatusPerTimeUnit}
      * @memberof RequestRateLimitStatusContainerItem
      */
-    perTimeUnit?: RequestRateLimitStatusPerTimeUnit;
+    unit?: RequestRateLimitStatusPerTimeUnit;
     /**
      * 
      * @type {number}
      * @memberof RequestRateLimitStatusContainerItem
      */
-    limitTimes?: number;
+    limit?: number;
     /**
      * 
      * @type {number}
      * @memberof RequestRateLimitStatusContainerItem
      */
-    capacity?: number;
+    amount?: number;
 }
 
 /**
@@ -65,9 +65,9 @@ export function RequestRateLimitStatusContainerItemFromJSONTyped(json: any, igno
     }
     return {
         
-        'perTimeUnit': !exists(json, 'perTimeUnit') ? undefined : RequestRateLimitStatusPerTimeUnitFromJSON(json['perTimeUnit']),
-        'limitTimes': !exists(json, 'limitTimes') ? undefined : json['limitTimes'],
-        'capacity': !exists(json, 'capacity') ? undefined : json['capacity'],
+        'unit': !exists(json, 'unit') ? undefined : RequestRateLimitStatusPerTimeUnitFromJSON(json['unit']),
+        'limit': !exists(json, 'limit') ? undefined : json['limit'],
+        'amount': !exists(json, 'amount') ? undefined : json['amount'],
     };
 }
 
@@ -80,9 +80,9 @@ export function RequestRateLimitStatusContainerItemToJSON(value?: RequestRateLim
     }
     return {
         
-        'perTimeUnit': RequestRateLimitStatusPerTimeUnitToJSON(value.perTimeUnit),
-        'limitTimes': value.limitTimes,
-        'capacity': value.capacity,
+        'unit': RequestRateLimitStatusPerTimeUnitToJSON(value.unit),
+        'limit': value.limit,
+        'amount': value.amount,
     };
 }
 

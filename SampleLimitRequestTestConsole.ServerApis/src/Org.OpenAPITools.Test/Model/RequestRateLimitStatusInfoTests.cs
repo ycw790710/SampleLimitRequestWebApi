@@ -55,21 +55,21 @@ namespace Org.OpenAPITools.Test.Model
         }
 
         /// <summary>
-        /// Test the property 'ContainerTypeInfos'
+        /// Test the property 'TypeInfos'
         /// </summary>
         [Fact]
-        public void ContainerTypeInfosTest()
+        public void TypeInfosTest()
         {
-            // TODO unit test for the property 'ContainerTypeInfos'
+            // TODO unit test for the property 'TypeInfos'
         }
 
         /// <summary>
-        /// Test the property 'PerUnitInfos'
+        /// Test the property 'UnitUnitInfos'
         /// </summary>
         [Fact]
-        public void PerUnitInfosTest()
+        public void UnitUnitInfosTest()
         {
-            // TODO unit test for the property 'PerUnitInfos'
+            // TODO unit test for the property 'UnitUnitInfos'
         }
     }
 }

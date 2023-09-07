@@ -2,12 +2,12 @@
 
 public class RequestRateLimitStatusInfo
 {
-    public IReadOnlyList<RequestRateLimitStatusContainerTypeInfo> containerTypeInfos { get; private set; }
-    public IReadOnlyDictionary<int, RequestRateLimitStatusPerTimeUnitInfo> perUnitInfos { get; private set; }
+    public IReadOnlyList<RequestRateLimitStatusContainerTypeInfo> typeInfos { get; private set; }
+    public IReadOnlyDictionary<int, RequestRateLimitStatusPerTimeUnitInfo> unitUnitInfos { get; private set; }
 
-    public RequestRateLimitStatusInfo(IReadOnlyList<RequestRateLimitStatusContainerTypeInfo> containerTypeInfos, IReadOnlyDictionary<int, RequestRateLimitStatusPerTimeUnitInfo> perUnitInfos)
+    public RequestRateLimitStatusInfo(IReadOnlyList<RequestRateLimitStatusContainerTypeInfo> typeInfos, IReadOnlyDictionary<int, RequestRateLimitStatusPerTimeUnitInfo> unitUnitInfos)
     {
-        this.containerTypeInfos = containerTypeInfos;
-        this.perUnitInfos = perUnitInfos;
+        this.typeInfos = typeInfos;
+        this.unitUnitInfos = unitUnitInfos;
     }
 }

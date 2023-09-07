@@ -3,9 +3,9 @@ namespace RequestRateLimit.Services;
 
 public class RequestRateLimitCacheService : IRequestRateLimitCacheService
 {
-    private static int TypeLength { get; }
+    private static int LimitTypeLength { get; }
         = Enum.GetValues(typeof(RequestRateLimitType)).Length;
-    private static int RequestRateLimitPerTimeUnitCount { get; }
+    private static int UnitCount { get; }
         = Enum.GetValues(typeof(RequestRateLimitPerTimeUnit)).Length;
 
     private readonly IReadOnlyList<ConcurrentDictionary<string, RequestRateLimitCacheContainter>> _caches;
@@ -17,15 +17,15 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
     public RequestRateLimitCacheService(
         IRequestRateLimitStatusCacheService requestRateLimitStatusCacheService)
     {
-        var caches = new ConcurrentDictionary<string, RequestRateLimitCacheContainter>[TypeLength];
-        var lock_waitingExpiredQueues = new object[TypeLength];
-        var waitingExpiredQueues = new ConcurrentQueue<(RequestRateLimitType type, string key, TimeSpan ExpiredTime)>[TypeLength];
-        for (int i = 0; i < TypeLength; i++)
+        var caches = new ConcurrentDictionary<string, RequestRateLimitCacheContainter>[LimitTypeLength];
+        var lock_waitingExpiredQueues = new object[LimitTypeLength];
+        var waitingExpiredQueues = new ConcurrentQueue<(RequestRateLimitType type, string key, TimeSpan ExpiredTime)>[LimitTypeLength];
+        for (int i = 0; i < LimitTypeLength; i++)
         {
             caches[i] = new();
             lock_waitingExpiredQueues[i] = new();
         }
-        for (int i = 0; i < RequestRateLimitPerTimeUnitCount; i++)
+        for (int i = 0; i < UnitCount; i++)
         {
             waitingExpiredQueues[i] = new();
         }
@@ -37,39 +37,39 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
         _requestRateLimitStatusCacheService = requestRateLimitStatusCacheService;
     }
 
-    private int GetCacheIndex(RequestRateLimitType requestRateLimitType)
+    private int GetCacheIndex(RequestRateLimitType limitType)
     {
-        return (int)requestRateLimitType;
+        return (int)limitType;
     }
 
-    private int GetWaitingExpiredQueuesIndex(RequestRateLimitPerTimeUnit requestRateLimitPerTimeUnit)
+    private int GetWaitingExpiredQueuesIndex(RequestRateLimitPerTimeUnit unit)
     {
-        return (int)requestRateLimitPerTimeUnit;
+        return (int)unit;
     }
 
-    private bool Valid(RequestRateLimitType requestRateLimitType,
-        string key, RequestRateLimitPerTimeUnit perTimeUnit, int limitTimes)
+    private bool Valid(RequestRateLimitType limitType,
+        string key, RequestRateLimitPerTimeUnit unit, int limit)
     {
-        RemoveExpired(perTimeUnit);
+        RemoveExpired(unit);
 
-        var cache = _caches[GetCacheIndex(requestRateLimitType)];
+        var cache = _caches[GetCacheIndex(limitType)];
 
         if (!cache.ContainsKey(key))
             cache.TryAdd(key, new(key));
         var container = cache[key];
-        var valid = container.Valid(perTimeUnit, limitTimes, out var expiredTime);
+        var valid = container.Valid(unit, limit, out var expiredTime);
 
-        var waitingExpiredQueue = _waitingExpiredQueues[GetWaitingExpiredQueuesIndex(perTimeUnit)];
-        waitingExpiredQueue.Enqueue((requestRateLimitType, key, expiredTime));
+        var waitingExpiredQueue = _waitingExpiredQueues[GetWaitingExpiredQueuesIndex(unit)];
+        waitingExpiredQueue.Enqueue((limitType, key, expiredTime));
 
-        AddUpdatingToWaitingSendingStatusContainers(requestRateLimitType, container);
+        AddUpdatingToWaitingSendingStatusContainers(limitType, container);
 
         return valid;
     }
 
-    private void RemoveExpired(RequestRateLimitPerTimeUnit perTimeUnit)
+    private void RemoveExpired(RequestRateLimitPerTimeUnit unit)
     {
-        var waitingExpiredQueuesIndex = GetWaitingExpiredQueuesIndex(perTimeUnit);
+        var waitingExpiredQueuesIndex = GetWaitingExpiredQueuesIndex(unit);
         var lock_waitingExpiredQueue = _lock_waitingExpiredQueues[waitingExpiredQueuesIndex];
         var waitingExpiredQueue = _waitingExpiredQueues[waitingExpiredQueuesIndex];
         while (waitingExpiredQueue.Count > 0 &&
@@ -97,26 +97,26 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
                 }
                 else if (container != null)
                 {
-                    container.RemoveExpiredItem(perTimeUnit);
+                    container.RemoveExpiredItem(unit);
                     AddUpdatingToWaitingSendingStatusContainers(expiredInfo.type, container);
                 }
             }
         }
     }
 
-    private void AddUpdatingToWaitingSendingStatusContainers(RequestRateLimitType requestRateLimitType,
+    private void AddUpdatingToWaitingSendingStatusContainers(RequestRateLimitType limitType,
         RequestRateLimitCacheContainter container)
     {
         var requestRateLimitStatusContainerItems = new List<RequestRateLimitStatusContainerItem>();
         var requestRateLimitStatusContainer = new RequestRateLimitStatusContainer(container.Key,
-            Convert(requestRateLimitType),
+            Convert(limitType),
             requestRateLimitStatusContainerItems);
         foreach (var item in container.Items)
         {
             if (item == null)
                 continue;
             var statusContainerItem = new RequestRateLimitStatusContainerItem(
-                Convert(item.PerTimeUnit), item.LimitTimes, item.Capacity);
+                Convert(item.Unit), item.Limit, item.Amount);
             requestRateLimitStatusContainerItems.Add(statusContainerItem);
         }
 
@@ -124,19 +124,19 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
             RequestRateLimitStatusContainerActionType.Update, requestRateLimitStatusContainer);
     }
 
-    private void AddRemovingToWaitingSendingStatusContainers(RequestRateLimitType requestRateLimitType,
+    private void AddRemovingToWaitingSendingStatusContainers(RequestRateLimitType limitType,
         RequestRateLimitCacheContainter container)
     {
         var requestRateLimitStatusContainer = new RequestRateLimitStatusContainer(container.Key,
-                                    Convert(requestRateLimitType));
+                                    Convert(limitType));
 
         _requestRateLimitStatusCacheService.SendContainer(
             RequestRateLimitStatusContainerActionType.Remove, requestRateLimitStatusContainer);
     }
 
-    private RequestRateLimitStatusContainerType Convert(RequestRateLimitType requestRateLimitType)
+    private RequestRateLimitStatusContainerType Convert(RequestRateLimitType limitType)
     {
-        switch (requestRateLimitType)
+        switch (limitType)
         {
             case RequestRateLimitType.GlobalController:
                 return RequestRateLimitStatusContainerType.GlobalController;
@@ -150,16 +150,16 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
                 throw new Exception("Unset Mapping");
         }
     }
-    private RequestRateLimitStatusPerTimeUnit Convert(RequestRateLimitPerTimeUnit perTimeUnit)
+    private RequestRateLimitStatusPerTimeUnit Convert(RequestRateLimitPerTimeUnit unit)
     {
-        switch (perTimeUnit)
+        switch (unit)
         {
             case RequestRateLimitPerTimeUnit.Seconds:
-                return RequestRateLimitStatusPerTimeUnit.Seconds;
+                return RequestRateLimitStatusPerTimeUnit.Second;
             case RequestRateLimitPerTimeUnit.Minutes:
-                return RequestRateLimitStatusPerTimeUnit.Minutes;
+                return RequestRateLimitStatusPerTimeUnit.Minute;
             case RequestRateLimitPerTimeUnit.Hours:
-                return RequestRateLimitStatusPerTimeUnit.Hours;
+                return RequestRateLimitStatusPerTimeUnit.Hour;
             default:
                 throw new Exception("Unset Mapping");
         }
@@ -177,9 +177,9 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
         foreach (var globalActionRequestRateLimit in globalActionRequestRateLimits)
         {
             var key = globalActionRequestRateLimit.GetKey(httpMethod, controllerName, actionName);
-            var perTimeUnit = globalActionRequestRateLimit.PerTimeUnit;
-            var limitTimes = globalActionRequestRateLimit.LimitTimes;
-            valid &= Valid(RequestRateLimitType.GlobalAction, key, perTimeUnit, limitTimes);
+            var unit = globalActionRequestRateLimit.Unit;
+            var limit = globalActionRequestRateLimit.Limit;
+            valid &= Valid(RequestRateLimitType.GlobalAction, key, unit, limit);
         }
 
         var globalControllerRequestRateLimits =
@@ -189,9 +189,9 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
         foreach (var globalControllerRequestRateLimit in globalControllerRequestRateLimits)
         {
             var key = globalControllerRequestRateLimit.GetKey(httpMethod, controllerName, "");
-            var perTimeUnit = globalControllerRequestRateLimit.PerTimeUnit;
-            var limitTimes = globalControllerRequestRateLimit.LimitTimes;
-            valid &= Valid(RequestRateLimitType.GlobalController, key, perTimeUnit, limitTimes);
+            var unit = globalControllerRequestRateLimit.Unit;
+            var limit = globalControllerRequestRateLimit.Limit;
+            valid &= Valid(RequestRateLimitType.GlobalController, key, unit, limit);
         }
 
         var ipActionRequestRateLimits =
@@ -201,9 +201,9 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
         foreach (var ipActionRequestRateLimit in ipActionRequestRateLimits)
         {
             var key = ipActionRequestRateLimit.GetKey(httpMethod, controllerName, actionName, remoteIpAddress);
-            var perTimeUnit = ipActionRequestRateLimit.PerTimeUnit;
-            var limitTimes = ipActionRequestRateLimit.LimitTimes;
-            valid &= Valid(RequestRateLimitType.Ip, key, perTimeUnit, limitTimes);
+            var unit = ipActionRequestRateLimit.Unit;
+            var limit = ipActionRequestRateLimit.Limit;
+            valid &= Valid(RequestRateLimitType.Ip, key, unit, limit);
         }
 
         var ipControllerRequestRateLimits =
@@ -213,9 +213,9 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
         foreach (var ipControllerRequestRateLimit in ipControllerRequestRateLimits)
         {
             var key = ipControllerRequestRateLimit.GetKey(httpMethod, controllerName, "", remoteIpAddress);
-            var perTimeUnit = ipControllerRequestRateLimit.PerTimeUnit;
-            var limitTimes = ipControllerRequestRateLimit.LimitTimes;
-            valid &= Valid(RequestRateLimitType.Ip, key, perTimeUnit, limitTimes);
+            var unit = ipControllerRequestRateLimit.Unit;
+            var limit = ipControllerRequestRateLimit.Limit;
+            valid &= Valid(RequestRateLimitType.Ip, key, unit, limit);
         }
 
         return valid;
@@ -233,9 +233,9 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
         foreach (var userActionRequestRateLimit in userActionRequestRateLimits)
         {
             var key = userActionRequestRateLimit.GetKey(httpMethod, controllerName, actionName, userId);
-            var perTimeUnit = userActionRequestRateLimit.PerTimeUnit;
-            var limitTimes = userActionRequestRateLimit.LimitTimes;
-            valid &= Valid(RequestRateLimitType.User, key, perTimeUnit, limitTimes);
+            var unit = userActionRequestRateLimit.Unit;
+            var limit = userActionRequestRateLimit.Limit;
+            valid &= Valid(RequestRateLimitType.User, key, unit, limit);
         }
 
         var userControllerRequestRateLimits =
@@ -245,9 +245,9 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
         foreach (var userControllerRequestRateLimit in userControllerRequestRateLimits)
         {
             var key = userControllerRequestRateLimit.GetKey(httpMethod, controllerName, "", userId);
-            var perTimeUnit = userControllerRequestRateLimit.PerTimeUnit;
-            var limitTimes = userControllerRequestRateLimit.LimitTimes;
-            valid &= Valid(RequestRateLimitType.User, key, perTimeUnit, limitTimes);
+            var unit = userControllerRequestRateLimit.Unit;
+            var limit = userControllerRequestRateLimit.Limit;
+            valid &= Valid(RequestRateLimitType.User, key, unit, limit);
         }
 
         return valid;
@@ -256,11 +256,11 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
     private IList<T> DistinctByMinLimitTimes<T>(IEnumerable<T> items)
         where T : IRequestRateLimitAttribute
     {
-        T[] arr = new T[RequestRateLimitPerTimeUnitCount];
+        T[] arr = new T[UnitCount];
         foreach (var item in items)
         {
-            var idx = (int)item.PerTimeUnit;
-            if (arr[idx] == null || arr[idx].LimitTimes > item.LimitTimes)
+            var idx = (int)item.Unit;
+            if (arr[idx] == null || arr[idx].Limit > item.Limit)
                 arr[idx] = item;
         }
         return arr.Where(n => n != null).ToArray();
@@ -268,9 +268,9 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
 
     public void RemoveExpired()
     {
-        foreach (var perTimeUnit in Enum.GetValues<RequestRateLimitPerTimeUnit>())
+        foreach (var unit in Enum.GetValues<RequestRateLimitPerTimeUnit>())
         {
-            RemoveExpired(perTimeUnit);
+            RemoveExpired(unit);
         }
     }
 
@@ -290,7 +290,7 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
         {
             Key = key;
 
-            var itemsLength = RequestRateLimitPerTimeUnitCount;
+            var itemsLength = UnitCount;
             var lockItems = new object[itemsLength];
             var lockWaitingExpiredItems_queues = new object[itemsLength];
             var waiting_expiredItems_queues = new List<ConcurrentQueue<TimeSpan>>();
@@ -309,33 +309,33 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
             ExpiredTime = GlobalTimer.NowTimeSpan();
         }
 
-        public bool Valid(RequestRateLimitPerTimeUnit perTimeUnit, int newLimitTimes, out TimeSpan expiredTime)
+        public bool Valid(RequestRateLimitPerTimeUnit unit, int newLimit, out TimeSpan expiredTime)
         {
             RemoveExpiredItem();
 
             var valid = true;
             expiredTime = TimeSpan.Zero;
-            var idx = (int)perTimeUnit;
+            var idx = (int)unit;
             var lockItem = _lockItems[idx];
             lock (lockItem)
             {
                 if (_items[idx] == null)
                 {
-                    _items[idx] = new(newLimitTimes, perTimeUnit);
+                    _items[idx] = new(newLimit, unit);
                 }
                 expiredTime = _items[idx].Enter();
                 valid = _items[idx].Valid();
             }
-            _waiting_expiredItems_queues[(int)perTimeUnit].Enqueue(expiredTime);
+            _waiting_expiredItems_queues[(int)unit].Enqueue(expiredTime);
             if (expiredTime > ExpiredTime)
                 ExpiredTime = expiredTime;
 
             return valid;
         }
 
-        public void RemoveExpiredItem(RequestRateLimitPerTimeUnit perTimeUnit)
+        public void RemoveExpiredItem(RequestRateLimitPerTimeUnit unit)
         {
-            var idx = (int)perTimeUnit;
+            var idx = (int)unit;
             var waiting_expiredItems_queue = _waiting_expiredItems_queues[idx];
             if (waiting_expiredItems_queue == null)
                 return;
@@ -370,54 +370,54 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
 
         public void RemoveExpiredItem()
         {
-            foreach (var perTimeUnit in Enum.GetValues<RequestRateLimitPerTimeUnit>())
+            foreach (var unit in Enum.GetValues<RequestRateLimitPerTimeUnit>())
             {
-                RemoveExpiredItem(perTimeUnit);
+                RemoveExpiredItem(unit);
             }
         }
     }
 
     class RequestRateLimitCacheContainterItem
     {
-        public int LimitTimes { get; private set; }
-        public int Capacity { get; private set; }
-        public RequestRateLimitPerTimeUnit PerTimeUnit { get; private set; }
+        public int Limit { get; private set; }
+        public int Amount { get; private set; }
+        public RequestRateLimitPerTimeUnit Unit { get; private set; }
         public TimeSpan ExpiredTime { get; private set; }
 
-        public RequestRateLimitCacheContainterItem(int limitTimes, RequestRateLimitPerTimeUnit perTimeUnit)
+        public RequestRateLimitCacheContainterItem(int limit, RequestRateLimitPerTimeUnit unit)
         {
-            LimitTimes = limitTimes;
-            Capacity = 0;
-            PerTimeUnit = perTimeUnit;
-            ExpiredTime = GetExpiredTime(perTimeUnit);
+            Limit = limit;
+            Amount = 0;
+            Unit = unit;
+            ExpiredTime = GetExpiredTime(unit);
         }
 
         public TimeSpan Enter()
         {
-            Capacity++;
-            var expiredTime = GetExpiredTime(PerTimeUnit);
+            Amount++;
+            var expiredTime = GetExpiredTime(Unit);
             ExpiredTime = expiredTime;
             return expiredTime;
         }
 
         public bool Valid()
         {
-            return Capacity <= LimitTimes;
+            return Amount <= Limit;
         }
 
         public void Leave()
         {
-            Capacity--;
+            Amount--;
         }
 
-        private TimeSpan GetExpiredTime(RequestRateLimitPerTimeUnit perTimeUnit)
+        private TimeSpan GetExpiredTime(RequestRateLimitPerTimeUnit unit)
         {
             var expiredMilliseconds = 0;
-            if (perTimeUnit == RequestRateLimitPerTimeUnit.Seconds)
+            if (unit == RequestRateLimitPerTimeUnit.Seconds)
                 expiredMilliseconds = 1000;
-            else if (perTimeUnit == RequestRateLimitPerTimeUnit.Minutes)
+            else if (unit == RequestRateLimitPerTimeUnit.Minutes)
                 expiredMilliseconds = 60 * 1000;
-            else if (perTimeUnit == RequestRateLimitPerTimeUnit.Hours)
+            else if (unit == RequestRateLimitPerTimeUnit.Hours)
                 expiredMilliseconds = 3600 * 1000;
             else
                 throw new Exception("Miss mapping enum");

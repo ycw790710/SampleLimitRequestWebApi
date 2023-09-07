@@ -34,25 +34,25 @@ namespace Org.OpenAPITools.Model
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestRateLimitStatusInfo" /> class.
         /// </summary>
-        /// <param name="containerTypeInfos">containerTypeInfos.</param>
-        /// <param name="perUnitInfos">perUnitInfos.</param>
-        public RequestRateLimitStatusInfo(List<RequestRateLimitStatusContainerTypeInfo> containerTypeInfos = default(List<RequestRateLimitStatusContainerTypeInfo>), Dictionary<string, RequestRateLimitStatusPerTimeUnitInfo> perUnitInfos = default(Dictionary<string, RequestRateLimitStatusPerTimeUnitInfo>))
+        /// <param name="typeInfos">typeInfos.</param>
+        /// <param name="unitUnitInfos">unitUnitInfos.</param>
+        public RequestRateLimitStatusInfo(List<RequestRateLimitStatusContainerTypeInfo> typeInfos = default(List<RequestRateLimitStatusContainerTypeInfo>), Dictionary<string, RequestRateLimitStatusPerTimeUnitInfo> unitUnitInfos = default(Dictionary<string, RequestRateLimitStatusPerTimeUnitInfo>))
         {
-            this.ContainerTypeInfos = containerTypeInfos;
-            this.PerUnitInfos = perUnitInfos;
+            this.TypeInfos = typeInfos;
+            this.UnitUnitInfos = unitUnitInfos;
         }
 
         /// <summary>
-        /// Gets or Sets ContainerTypeInfos
+        /// Gets or Sets TypeInfos
         /// </summary>
-        [DataMember(Name = "containerTypeInfos", EmitDefaultValue = true)]
-        public List<RequestRateLimitStatusContainerTypeInfo> ContainerTypeInfos { get; set; }
+        [DataMember(Name = "typeInfos", EmitDefaultValue = true)]
+        public List<RequestRateLimitStatusContainerTypeInfo> TypeInfos { get; set; }
 
         /// <summary>
-        /// Gets or Sets PerUnitInfos
+        /// Gets or Sets UnitUnitInfos
         /// </summary>
-        [DataMember(Name = "perUnitInfos", EmitDefaultValue = true)]
-        public Dictionary<string, RequestRateLimitStatusPerTimeUnitInfo> PerUnitInfos { get; set; }
+        [DataMember(Name = "unitUnitInfos", EmitDefaultValue = true)]
+        public Dictionary<string, RequestRateLimitStatusPerTimeUnitInfo> UnitUnitInfos { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -62,8 +62,8 @@ namespace Org.OpenAPITools.Model
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("class RequestRateLimitStatusInfo {\n");
-            sb.Append("  ContainerTypeInfos: ").Append(ContainerTypeInfos).Append("\n");
-            sb.Append("  PerUnitInfos: ").Append(PerUnitInfos).Append("\n");
+            sb.Append("  TypeInfos: ").Append(TypeInfos).Append("\n");
+            sb.Append("  UnitUnitInfos: ").Append(UnitUnitInfos).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -100,16 +100,16 @@ namespace Org.OpenAPITools.Model
             }
             return 
                 (
-                    this.ContainerTypeInfos == input.ContainerTypeInfos ||
-                    this.ContainerTypeInfos != null &&
-                    input.ContainerTypeInfos != null &&
-                    this.ContainerTypeInfos.SequenceEqual(input.ContainerTypeInfos)
+                    this.TypeInfos == input.TypeInfos ||
+                    this.TypeInfos != null &&
+                    input.TypeInfos != null &&
+                    this.TypeInfos.SequenceEqual(input.TypeInfos)
                 ) && 
                 (
-                    this.PerUnitInfos == input.PerUnitInfos ||
-                    this.PerUnitInfos != null &&
-                    input.PerUnitInfos != null &&
-                    this.PerUnitInfos.SequenceEqual(input.PerUnitInfos)
+                    this.UnitUnitInfos == input.UnitUnitInfos ||
+                    this.UnitUnitInfos != null &&
+                    input.UnitUnitInfos != null &&
+                    this.UnitUnitInfos.SequenceEqual(input.UnitUnitInfos)
                 );
         }
 
@@ -122,13 +122,13 @@ namespace Org.OpenAPITools.Model
             unchecked // Overflow is fine, just wrap
             {
                 int hashCode = 41;
-                if (this.ContainerTypeInfos != null)
+                if (this.TypeInfos != null)
                 {
-                    hashCode = (hashCode * 59) + this.ContainerTypeInfos.GetHashCode();
+                    hashCode = (hashCode * 59) + this.TypeInfos.GetHashCode();
                 }
-                if (this.PerUnitInfos != null)
+                if (this.UnitUnitInfos != null)
                 {
-                    hashCode = (hashCode * 59) + this.PerUnitInfos.GetHashCode();
+                    hashCode = (hashCode * 59) + this.UnitUnitInfos.GetHashCode();
                 }
                 return hashCode;
             }

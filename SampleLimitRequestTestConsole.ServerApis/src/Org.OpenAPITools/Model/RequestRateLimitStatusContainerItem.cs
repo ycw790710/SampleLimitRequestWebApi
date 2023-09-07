@@ -33,34 +33,34 @@ namespace Org.OpenAPITools.Model
     {
 
         /// <summary>
-        /// Gets or Sets PerTimeUnit
+        /// Gets or Sets Unit
         /// </summary>
-        [DataMember(Name = "perTimeUnit", EmitDefaultValue = false)]
-        public RequestRateLimitStatusPerTimeUnit? PerTimeUnit { get; set; }
+        [DataMember(Name = "unit", EmitDefaultValue = false)]
+        public RequestRateLimitStatusPerTimeUnit? Unit { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestRateLimitStatusContainerItem" /> class.
         /// </summary>
-        /// <param name="perTimeUnit">perTimeUnit.</param>
-        /// <param name="limitTimes">limitTimes.</param>
-        /// <param name="capacity">capacity.</param>
-        public RequestRateLimitStatusContainerItem(RequestRateLimitStatusPerTimeUnit? perTimeUnit = default(RequestRateLimitStatusPerTimeUnit?), int limitTimes = default(int), int capacity = default(int))
+        /// <param name="unit">unit.</param>
+        /// <param name="limit">limit.</param>
+        /// <param name="amount">amount.</param>
+        public RequestRateLimitStatusContainerItem(RequestRateLimitStatusPerTimeUnit? unit = default(RequestRateLimitStatusPerTimeUnit?), int limit = default(int), int amount = default(int))
         {
-            this.PerTimeUnit = perTimeUnit;
-            this.LimitTimes = limitTimes;
-            this.Capacity = capacity;
+            this.Unit = unit;
+            this.Limit = limit;
+            this.Amount = amount;
         }
 
         /// <summary>
-        /// Gets or Sets LimitTimes
+        /// Gets or Sets Limit
         /// </summary>
-        [DataMember(Name = "limitTimes", EmitDefaultValue = false)]
-        public int LimitTimes { get; set; }
+        [DataMember(Name = "limit", EmitDefaultValue = false)]
+        public int Limit { get; set; }
 
         /// <summary>
-        /// Gets or Sets Capacity
+        /// Gets or Sets Amount
         /// </summary>
-        [DataMember(Name = "capacity", EmitDefaultValue = false)]
-        public int Capacity { get; set; }
+        [DataMember(Name = "amount", EmitDefaultValue = false)]
+        public int Amount { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -70,9 +70,9 @@ namespace Org.OpenAPITools.Model
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("class RequestRateLimitStatusContainerItem {\n");
-            sb.Append("  PerTimeUnit: ").Append(PerTimeUnit).Append("\n");
-            sb.Append("  LimitTimes: ").Append(LimitTimes).Append("\n");
-            sb.Append("  Capacity: ").Append(Capacity).Append("\n");
+            sb.Append("  Unit: ").Append(Unit).Append("\n");
+            sb.Append("  Limit: ").Append(Limit).Append("\n");
+            sb.Append("  Amount: ").Append(Amount).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -109,16 +109,16 @@ namespace Org.OpenAPITools.Model
             }
             return 
                 (
-                    this.PerTimeUnit == input.PerTimeUnit ||
-                    this.PerTimeUnit.Equals(input.PerTimeUnit)
+                    this.Unit == input.Unit ||
+                    this.Unit.Equals(input.Unit)
                 ) && 
                 (
-                    this.LimitTimes == input.LimitTimes ||
-                    this.LimitTimes.Equals(input.LimitTimes)
+                    this.Limit == input.Limit ||
+                    this.Limit.Equals(input.Limit)
                 ) && 
                 (
-                    this.Capacity == input.Capacity ||
-                    this.Capacity.Equals(input.Capacity)
+                    this.Amount == input.Amount ||
+                    this.Amount.Equals(input.Amount)
                 );
         }
 
@@ -131,9 +131,9 @@ namespace Org.OpenAPITools.Model
             unchecked // Overflow is fine, just wrap
             {
                 int hashCode = 41;
-                hashCode = (hashCode * 59) + this.PerTimeUnit.GetHashCode();
-                hashCode = (hashCode * 59) + this.LimitTimes.GetHashCode();
-                hashCode = (hashCode * 59) + this.Capacity.GetHashCode();
+                hashCode = (hashCode * 59) + this.Unit.GetHashCode();
+                hashCode = (hashCode * 59) + this.Limit.GetHashCode();
+                hashCode = (hashCode * 59) + this.Amount.GetHashCode();
                 return hashCode;
             }
         }

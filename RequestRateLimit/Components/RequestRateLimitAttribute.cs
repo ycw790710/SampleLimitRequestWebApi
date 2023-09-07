@@ -2,19 +2,19 @@
 
 public abstract class RequestRateLimitAttribute : Attribute, IRequestRateLimitAttribute
 {
-    public int LimitTimes { get; }
-    public RequestRateLimitPerTimeUnit PerTimeUnit { get; }
+    public int Limit { get; }
+    public RequestRateLimitPerTimeUnit Unit { get; }
 
-    public RequestRateLimitAttribute(int limitTimes, RequestRateLimitPerTimeUnit inputPerTimeUnit)
+    public RequestRateLimitAttribute(int limit, RequestRateLimitPerTimeUnit unit)
     {
-        var expectedTimes = GetExpectedTimes(inputPerTimeUnit);
-        if (limitTimes < expectedTimes.MinTimes || limitTimes > expectedTimes.MaxTimes)
+        var expectedTimes = GetExpectedTimes(unit);
+        if (limit < expectedTimes.MinTimes || limit > expectedTimes.MaxTimes)
             throw new ArgumentException(
-                $"Invalid {nameof(limitTimes)}, min {expectedTimes.MinTimes}, max {expectedTimes.MaxTimes}");
+                $"Invalid {nameof(limit)}, min {expectedTimes.MinTimes}, max {expectedTimes.MaxTimes}");
 
-        LimitTimes = limitTimes;
-        PerTimeUnit = inputPerTimeUnit;
+        Limit = limit;
+        Unit = unit;
     }
 
-    protected abstract (int MinTimes, int MaxTimes) GetExpectedTimes(RequestRateLimitPerTimeUnit inputPerTimeUnit);
+    protected abstract (int MinTimes, int MaxTimes) GetExpectedTimes(RequestRateLimitPerTimeUnit unit);
 }

@@ -3,13 +3,13 @@
 public class RequestRateLimitStatus
 {
     public DateTime updatedTime { get; private set; }
-    public IReadOnlyDictionary<int, IReadOnlyCollection<RequestRateLimitStatusContainer>> containerTypesContainers { get; private set; }
+    public IReadOnlyDictionary<int, IReadOnlyCollection<RequestRateLimitStatusContainer>> typesContainers { get; private set; }
 
     public RequestRateLimitStatus(DateTime updatedTime,
-        IReadOnlyDictionary<int, IReadOnlyCollection<RequestRateLimitStatusContainer>> containerTypesContainers)
+        IReadOnlyDictionary<int, IReadOnlyCollection<RequestRateLimitStatusContainer>> typesContainers)
     {
         this.updatedTime = updatedTime;
-        this.containerTypesContainers = containerTypesContainers;
+        this.typesContainers = typesContainers;
     }
 
 }

@@ -37,7 +37,7 @@ export interface RequestRateLimitStatus {
      * @type {{ [key: string]: Array<RequestRateLimitStatusContainer>; }}
      * @memberof RequestRateLimitStatus
      */
-    containerTypesContainers?: { [key: string]: Array<RequestRateLimitStatusContainer>; } | null;
+    typesContainers?: { [key: string]: Array<RequestRateLimitStatusContainer>; } | null;
 }
 
 /**
@@ -60,7 +60,7 @@ export function RequestRateLimitStatusFromJSONTyped(json: any, ignoreDiscriminat
     return {
         
         'updatedTime': !exists(json, 'updatedTime') ? undefined : (new Date(json['updatedTime'])),
-        'containerTypesContainers': !exists(json, 'containerTypesContainers') ? undefined : json['containerTypesContainers'],
+        'typesContainers': !exists(json, 'typesContainers') ? undefined : json['typesContainers'],
     };
 }
 
@@ -74,7 +74,7 @@ export function RequestRateLimitStatusToJSON(value?: RequestRateLimitStatus | nu
     return {
         
         'updatedTime': value.updatedTime === undefined ? undefined : (value.updatedTime.toISOString()),
-        'containerTypesContainers': value.containerTypesContainers,
+        'typesContainers': value.typesContainers,
     };
 }
 

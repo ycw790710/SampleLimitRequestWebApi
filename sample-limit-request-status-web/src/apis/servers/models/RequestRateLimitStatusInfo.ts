@@ -37,13 +37,13 @@ export interface RequestRateLimitStatusInfo {
      * @type {Array<RequestRateLimitStatusContainerTypeInfo>}
      * @memberof RequestRateLimitStatusInfo
      */
-    containerTypeInfos?: Array<RequestRateLimitStatusContainerTypeInfo> | null;
+    typeInfos?: Array<RequestRateLimitStatusContainerTypeInfo> | null;
     /**
      * 
      * @type {{ [key: string]: RequestRateLimitStatusPerTimeUnitInfo; }}
      * @memberof RequestRateLimitStatusInfo
      */
-    perUnitInfos?: { [key: string]: RequestRateLimitStatusPerTimeUnitInfo; } | null;
+    unitUnitInfos?: { [key: string]: RequestRateLimitStatusPerTimeUnitInfo; } | null;
 }
 
 /**
@@ -65,8 +65,8 @@ export function RequestRateLimitStatusInfoFromJSONTyped(json: any, ignoreDiscrim
     }
     return {
         
-        'containerTypeInfos': !exists(json, 'containerTypeInfos') ? undefined : (json['containerTypeInfos'] === null ? null : (json['containerTypeInfos'] as Array<any>).map(RequestRateLimitStatusContainerTypeInfoFromJSON)),
-        'perUnitInfos': !exists(json, 'perUnitInfos') ? undefined : (json['perUnitInfos'] === null ? null : mapValues(json['perUnitInfos'], RequestRateLimitStatusPerTimeUnitInfoFromJSON)),
+        'typeInfos': !exists(json, 'typeInfos') ? undefined : (json['typeInfos'] === null ? null : (json['typeInfos'] as Array<any>).map(RequestRateLimitStatusContainerTypeInfoFromJSON)),
+        'unitUnitInfos': !exists(json, 'unitUnitInfos') ? undefined : (json['unitUnitInfos'] === null ? null : mapValues(json['unitUnitInfos'], RequestRateLimitStatusPerTimeUnitInfoFromJSON)),
     };
 }
 
@@ -79,8 +79,8 @@ export function RequestRateLimitStatusInfoToJSON(value?: RequestRateLimitStatusI
     }
     return {
         
-        'containerTypeInfos': value.containerTypeInfos === undefined ? undefined : (value.containerTypeInfos === null ? null : (value.containerTypeInfos as Array<any>).map(RequestRateLimitStatusContainerTypeInfoToJSON)),
-        'perUnitInfos': value.perUnitInfos === undefined ? undefined : (value.perUnitInfos === null ? null : mapValues(value.perUnitInfos, RequestRateLimitStatusPerTimeUnitInfoToJSON)),
+        'typeInfos': value.typeInfos === undefined ? undefined : (value.typeInfos === null ? null : (value.typeInfos as Array<any>).map(RequestRateLimitStatusContainerTypeInfoToJSON)),
+        'unitUnitInfos': value.unitUnitInfos === undefined ? undefined : (value.unitUnitInfos === null ? null : mapValues(value.unitUnitInfos, RequestRateLimitStatusPerTimeUnitInfoToJSON)),
     };
 }
 

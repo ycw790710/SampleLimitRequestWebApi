@@ -55,30 +55,30 @@ namespace Org.OpenAPITools.Test.Model
         }
 
         /// <summary>
-        /// Test the property 'PerTimeUnit'
+        /// Test the property 'Unit'
         /// </summary>
         [Fact]
-        public void PerTimeUnitTest()
+        public void UnitTest()
         {
-            // TODO unit test for the property 'PerTimeUnit'
+            // TODO unit test for the property 'Unit'
         }
 
         /// <summary>
-        /// Test the property 'LimitTimes'
+        /// Test the property 'Limit'
         /// </summary>
         [Fact]
-        public void LimitTimesTest()
+        public void LimitTest()
         {
-            // TODO unit test for the property 'LimitTimes'
+            // TODO unit test for the property 'Limit'
         }
 
         /// <summary>
-        /// Test the property 'Capacity'
+        /// Test the property 'Amount'
         /// </summary>
         [Fact]
-        public void CapacityTest()
+        public void AmountTest()
         {
-            // TODO unit test for the property 'Capacity'
+            // TODO unit test for the property 'Amount'
         }
     }
 }

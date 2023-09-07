@@ -2,6 +2,6 @@
 
 public interface IRequestRateLimitAttribute
 {
-    int LimitTimes { get; }
-    RequestRateLimitPerTimeUnit PerTimeUnit { get; }
+    int Limit { get; }
+    RequestRateLimitPerTimeUnit Unit { get; }
 }

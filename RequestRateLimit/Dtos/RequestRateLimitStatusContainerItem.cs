@@ -3,14 +3,14 @@
 
 public class RequestRateLimitStatusContainerItem
 {
-    public RequestRateLimitStatusPerTimeUnit perTimeUnit { get; private set; }
-    public int limitTimes { get; private set; }
-    public int capacity { get; private set; }
+    public RequestRateLimitStatusPerTimeUnit unit { get; private set; }
+    public int limit { get; private set; }
+    public int amount { get; private set; }
 
-    public RequestRateLimitStatusContainerItem(RequestRateLimitStatusPerTimeUnit perTimeUnit, int limitTimes, int capacity)
+    public RequestRateLimitStatusContainerItem(RequestRateLimitStatusPerTimeUnit unit, int limit, int amount)
     {
-        this.perTimeUnit = perTimeUnit;
-        this.limitTimes = limitTimes;
-        this.capacity = capacity;
+        this.unit = unit;
+        this.limit = limit;
+        this.amount = amount;
     }
 }

@@ -2,7 +2,7 @@
 
 public enum RequestRateLimitStatusPerTimeUnit
 {
-    Seconds,
-    Minutes,
-    Hours,
+    Second,
+    Minute,
+    Hour,
 }

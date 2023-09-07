@@ -35,11 +35,11 @@ namespace Org.OpenAPITools.Model
         /// Initializes a new instance of the <see cref="RequestRateLimitStatus" /> class.
         /// </summary>
         /// <param name="updatedTime">updatedTime.</param>
-        /// <param name="containerTypesContainers">containerTypesContainers.</param>
-        public RequestRateLimitStatus(DateTime updatedTime = default(DateTime), Dictionary<string, List<RequestRateLimitStatusContainer>> containerTypesContainers = default(Dictionary<string, List<RequestRateLimitStatusContainer>>))
+        /// <param name="typesContainers">typesContainers.</param>
+        public RequestRateLimitStatus(DateTime updatedTime = default(DateTime), Dictionary<string, List<RequestRateLimitStatusContainer>> typesContainers = default(Dictionary<string, List<RequestRateLimitStatusContainer>>))
         {
             this.UpdatedTime = updatedTime;
-            this.ContainerTypesContainers = containerTypesContainers;
+            this.TypesContainers = typesContainers;
         }
 
         /// <summary>
@@ -49,10 +49,10 @@ namespace Org.OpenAPITools.Model
         public DateTime UpdatedTime { get; set; }
 
         /// <summary>
-        /// Gets or Sets ContainerTypesContainers
+        /// Gets or Sets TypesContainers
         /// </summary>
-        [DataMember(Name = "containerTypesContainers", EmitDefaultValue = true)]
-        public Dictionary<string, List<RequestRateLimitStatusContainer>> ContainerTypesContainers { get; set; }
+        [DataMember(Name = "typesContainers", EmitDefaultValue = true)]
+        public Dictionary<string, List<RequestRateLimitStatusContainer>> TypesContainers { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -63,7 +63,7 @@ namespace Org.OpenAPITools.Model
             StringBuilder sb = new StringBuilder();
             sb.Append("class RequestRateLimitStatus {\n");
             sb.Append("  UpdatedTime: ").Append(UpdatedTime).Append("\n");
-            sb.Append("  ContainerTypesContainers: ").Append(ContainerTypesContainers).Append("\n");
+            sb.Append("  TypesContainers: ").Append(TypesContainers).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -105,10 +105,10 @@ namespace Org.OpenAPITools.Model
                     this.UpdatedTime.Equals(input.UpdatedTime))
                 ) && 
                 (
-                    this.ContainerTypesContainers == input.ContainerTypesContainers ||
-                    this.ContainerTypesContainers != null &&
-                    input.ContainerTypesContainers != null &&
-                    this.ContainerTypesContainers.SequenceEqual(input.ContainerTypesContainers)
+                    this.TypesContainers == input.TypesContainers ||
+                    this.TypesContainers != null &&
+                    input.TypesContainers != null &&
+                    this.TypesContainers.SequenceEqual(input.TypesContainers)
                 );
         }
 
@@ -125,9 +125,9 @@ namespace Org.OpenAPITools.Model
                 {
                     hashCode = (hashCode * 59) + this.UpdatedTime.GetHashCode();
                 }
-                if (this.ContainerTypesContainers != null)
+                if (this.TypesContainers != null)
                 {
-                    hashCode = (hashCode * 59) + this.ContainerTypesContainers.GetHashCode();
+                    hashCode = (hashCode * 59) + this.TypesContainers.GetHashCode();
                 }
                 return hashCode;
             }

@@ -55,12 +55,12 @@ namespace Org.OpenAPITools.Test.Model
         }
 
         /// <summary>
-        /// Test the property 'PerTimeUnit'
+        /// Test the property 'Unit'
         /// </summary>
         [Fact]
-        public void PerTimeUnitTest()
+        public void UnitTest()
         {
-            // TODO unit test for the property 'PerTimeUnit'
+            // TODO unit test for the property 'Unit'
         }
 
         /// <summary>

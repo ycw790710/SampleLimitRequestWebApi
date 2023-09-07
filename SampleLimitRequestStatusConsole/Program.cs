@@ -57,7 +57,7 @@ namespace SampleLimitRequestStatusConsole
                         allLines.Add($"更新時間: {status.UpdatedTime.ToLocalTime()}  Q:結束");
                         allLines.Add("Status狀態看板 + 呼叫Status效能測試");
 
-                        int columnCount = statusInfo.ContainerTypeInfos.Count;
+                        int columnCount = statusInfo.TypeInfos.Count;
                         columnWidth = GetColumnWidth(consoleWidth, columnCount);
 
                         List<string>[] titleNameColumnsLines = new List<string>[columnCount];
@@ -65,7 +65,7 @@ namespace SampleLimitRequestStatusConsole
                             titleNameColumnsLines[i] = new();
                         for (var c = 0; c < columnCount; c++)
                         {
-                            var name = statusInfo.ContainerTypeInfos[c].Name;
+                            var name = statusInfo.TypeInfos[c].Name;
                             var nameStrs = SplitByWidth(name, columnWidth);
                             foreach (var nameStr in nameStrs)
                                 titleNameColumnsLines[c].Add(PadRight(nameStr, columnWidth));
@@ -77,7 +77,7 @@ namespace SampleLimitRequestStatusConsole
                             titleDescriptionColumnsLines[i] = new();
                         for (var c = 0; c < columnCount; c++)
                         {
-                            var description = statusInfo.ContainerTypeInfos[c].Description;
+                            var description = statusInfo.TypeInfos[c].Description;
                             var descriptionStrs = SplitByWidth(description, columnWidth);
                             foreach (var descriptionStr in descriptionStrs)
                                 titleDescriptionColumnsLines[c].Add(PadRight(descriptionStr, columnWidth));
@@ -94,12 +94,12 @@ namespace SampleLimitRequestStatusConsole
 
                             for (int c = 0; c < columnCount; c++)
                             {
-                                var typeInfo = statusInfo.ContainerTypeInfos[c];
+                                var typeInfo = statusInfo.TypeInfos[c];
                                 if (typeInfo.Type == null)
                                     continue;
                                 var type = typeInfo.Type;
 
-                                var containers = status.ContainerTypesContainers[((int)type).ToString() ?? ""];
+                                var containers = status.TypesContainers[((int)type).ToString() ?? ""];
                                 if (r >= containers.Count)
                                     continue;
                                 var container = containers[r];
@@ -109,8 +109,8 @@ namespace SampleLimitRequestStatusConsole
                                 foreach (var item in container.Items)
                                 {
                                     string perTimeUnitName =
-                                        item.PerTimeUnit.HasValue ? statusInfo.PerUnitInfos[((int)item.PerTimeUnit.Value).ToString()].Name : "";
-                                    var itemInfoStrs = SplitByWidth($"{item.Capacity}/{item.LimitTimes} [{perTimeUnitName}]", columnWidth);
+                                        item.Unit.HasValue ? statusInfo.UnitUnitInfos[((int)item.Unit.Value).ToString()].Name : "";
+                                    var itemInfoStrs = SplitByWidth($"{item.Amount}/{item.Limit} [{perTimeUnitName}]", columnWidth);
                                     foreach (var itemInfoStr in itemInfoStrs)
                                         containerColumnsLines[c].Add(PadLeft(itemInfoStr, columnWidth));
                                 }

@@ -64,12 +64,12 @@ namespace Org.OpenAPITools.Test.Model
         }
 
         /// <summary>
-        /// Test the property 'ContainerTypesContainers'
+        /// Test the property 'TypesContainers'
         /// </summary>
         [Fact]
-        public void ContainerTypesContainersTest()
+        public void TypesContainersTest()
         {
-            // TODO unit test for the property 'ContainerTypesContainers'
+            // TODO unit test for the property 'TypesContainers'
         }
     }
 }

@@ -31,7 +31,7 @@ export interface RequestRateLimitStatusPerTimeUnitInfo {
      * @type {RequestRateLimitStatusPerTimeUnit}
      * @memberof RequestRateLimitStatusPerTimeUnitInfo
      */
-    perTimeUnit?: RequestRateLimitStatusPerTimeUnit;
+    unit?: RequestRateLimitStatusPerTimeUnit;
     /**
      * 
      * @type {string}
@@ -59,7 +59,7 @@ export function RequestRateLimitStatusPerTimeUnitInfoFromJSONTyped(json: any, ig
     }
     return {
         
-        'perTimeUnit': !exists(json, 'perTimeUnit') ? undefined : RequestRateLimitStatusPerTimeUnitFromJSON(json['perTimeUnit']),
+        'unit': !exists(json, 'unit') ? undefined : RequestRateLimitStatusPerTimeUnitFromJSON(json['unit']),
         'name': !exists(json, 'name') ? undefined : json['name'],
     };
 }
@@ -73,7 +73,7 @@ export function RequestRateLimitStatusPerTimeUnitInfoToJSON(value?: RequestRateL
     }
     return {
         
-        'perTimeUnit': RequestRateLimitStatusPerTimeUnitToJSON(value.perTimeUnit),
+        'unit': RequestRateLimitStatusPerTimeUnitToJSON(value.unit),
         'name': value.name,
     };
 }

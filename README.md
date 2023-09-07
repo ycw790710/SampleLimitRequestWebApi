@@ -2,8 +2,8 @@
 
 # 未完成
 
-## Service基礎效能測試 (Project:SampleLimitRequestTestConsole)
-![test console](sample-test-console.png)
+## Service基礎效能測試 (Project:SampleLimitRequestTestServiceConsole)
+![test console](sample-test-service-console.png)
 
 ## Web api基礎效能測試 (Project:SampleLimitRequestTestCountConsole)
 ![test count console](sample-test-count-console.png)

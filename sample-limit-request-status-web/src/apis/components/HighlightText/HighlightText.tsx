@@ -5,10 +5,7 @@ interface HighlightTextProps {
   text: string;
   keyword: string;
 }
-export const HighlightText: React.FC<HighlightTextProps> = ({
-  text,
-  keyword,
-}) => {
+const HighlightText: React.FC<HighlightTextProps> = ({ text, keyword }) => {
   const regex = new RegExp(`(${keyword})`, "gi");
   const parts = text.split(regex);
 
