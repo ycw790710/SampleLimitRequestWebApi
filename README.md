@@ -1,15 +1,57 @@
 # SampleLimitRequestWebApi
+* Request速率限制
+* 和dot net 7新增的[速率限制](https://learn.microsoft.com/zh-tw/aspnet/core/performance/rate-limit?view=aspnetcore-7.0)不同
+* 不論是否超出限制都會增加Amount
+* 當Amount超出Limit時, 回傳HTTP status code 429
 
-# 未完成
+## RequestRateLimit專案
+* 透過Attribute應用: GlobalRequestRateLimitAttribute, IpRequestRateLimitAttribute, UserRequestRateLimitAttribute使用
+* GlobalRequestRateLimitAttribute: 任意Request計入相同的Amount
+* IpRequestRateLimitAttribute: Ip相同時計入該Amount
+* UserRequestRateLimitAttribute: UserId相同時計入該Amount
+* 使用在Controller時, 為該Controller的所有Action都會計入
+* 使用在Controller Action時, 該Action會計入
 
-## Service基礎效能測試 (Project:SampleLimitRequestTestServiceConsole)
-![test console](sample-test-service-console.png)
+### Usage
+```
+[IpRequestRateLimit(30, RequestRateLimitPerTimeUnit.Seconds)]// 使用在Controller
+public class LimitIpAction3sController : ControllerBase
+{
+    [HttpGet]
+    [IpRequestRateLimit(3, RequestRateLimitPerTimeUnit.Seconds)]// 使用在Action
+    public async Task<ActionResult<string>> Get()
+    {
+        return Ok();
+    }
+}
+```
 
-## Web api基礎效能測試 (Project:SampleLimitRequestTestCountConsole)
-![test count console](sample-test-count-console.png)
+## Service基礎效能測試
+* Project SampleLimitRequestTestServiceConsole
+![test console](sample-images/sample-test-service-console.png)
 
-## Status Console狀態看板 + 呼叫Status效能測試 (Project:SampleLimitRequestStatusConsole)
-![status console](sample-status-console.png)
+## Web api基礎效能測試
+* 啟動2 Projects
+  * SampleLimitRequestTestCountConsole
+  * SampleLimitRequestWebApi
+* 使用'不偵錯'測試效能
+![test count console](sample-images/sample-test-count-console.png)
+
+## Status Console狀態看板 + 呼叫Status效能測試
+* 啟動2 Projects
+  * SampleLimitRequestStatusConsole
+  * SampleLimitRequestWebApi
+* 使用'不偵錯'測試效能
+![status console](sample-images/sample-status-console.png)
+
+## Status Web狀態看板 + 呼叫效能測試
+* 啟動2 C# Projects
+  * SampleLimitRequestTestPerformanceConsole
+  * SampleLimitRequestWebApi
+* C# Projects 使用'不偵錯'測試效能
+* 啟動 React Project
+  * sample-limit-request-status-web
+![sample-test-performance](sample-images/sample-test-performance.png)
 
 ## 附註
 

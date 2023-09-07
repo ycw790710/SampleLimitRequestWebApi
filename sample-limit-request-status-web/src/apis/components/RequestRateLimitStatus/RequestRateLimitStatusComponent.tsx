@@ -92,7 +92,6 @@ const RequestRateLimitStatusComponent: React.FC<
                 filters[n.val] = [];
               });
               setStatusContainerItemfilters({ obj: filters });
-              console.log("setStatusInfoData");
             });
         } catch (error) {
           setStatusInfoDataError("[ERROR InfoData]");
@@ -112,7 +111,6 @@ const RequestRateLimitStatusComponent: React.FC<
         if (nextState.length === state.length) {
           nextState.push(dataValue);
         }
-        console.log(nextState);
 
         return nextState;
       });
@@ -201,63 +199,71 @@ const RequestRateLimitStatusComponent: React.FC<
           (n) =>
             selectedContainerTypes.includes(n.type?.toString() ?? "") && (
               <div key={n.type} className={"column"}>
-                {statusData?.typesContainers?.[n.type?.toString() ?? ""].map(
-                  (n) =>
+                {statusData?.typesContainers?.[n.type?.toString() ?? ""]
+                  .filter((n) =>
                     n.key
                       ?.toLowerCase()
                       .includes(
                         statusContainerItemfilters?.obj[
                           n.type?.toString() ?? ""
                         ] ?? ""
-                      ) && (
-                      <div key={n.key} className={"row"}>
-                        <div
-                          className={
-                            "status-statuscontainer-item-id text tooltip"
-                          }
-                        >
-                          <code className={"code"}>
-                            <HighlightText
-                              text={n.key}
-                              keyword={
-                                statusContainerItemfilters?.obj[
-                                  n.type?.toString() ?? ""
-                                ] ?? ""
-                              }
-                            />
-                          </code>
-                          <span className={"tooltiptext"}>Key</span>
-                        </div>
-                        <div className={"status-statuscontainer-item"}>
-                          {n.items?.map((n) => (
-                            <div
-                              key={n.unit}
-                              className={
-                                "status-statuscontainer-item-info text"
-                              }
-                            >
-                              <span>
-                                (
-                                {
-                                  statusInfoData?.unitUnitInfos?.[
-                                    n.unit?.toString() ?? ""
-                                  ].name
-                                }
-                                )
-                              </span>
-                              <span className={"tooltip"}>
-                                <code className={"code"}>
-                                  {n.amount}/{n.limit}
-                                </code>
-                                <span className={"tooltiptext"}>
-                                  使用數/限制數
-                                </span>
-                              </span>
-                            </div>
-                          ))}
-                        </div>
+                      )
+                  )
+                  .slice(0, 20)
+                  .map((n) => (
+                    <div key={n.key} className={"row"}>
+                      <div
+                        className={
+                          "status-statuscontainer-item-id text tooltip"
+                        }
+                      >
+                        <code className={"code"}>
+                          <HighlightText
+                            text={n.key ?? ""}
+                            keyword={
+                              statusContainerItemfilters?.obj[
+                                n.type?.toString() ?? ""
+                              ] ?? ""
+                            }
+                          />
+                        </code>
+                        <span className={"tooltiptext"}>Key</span>
                       </div>
-                    )
+                      <div className={"status-statuscontainer-item"}>
+                        {n.items?.map((n) => (
+                          <div
+                            key={n.unit}
+                            className={"status-statuscontainer-item-info text"}
+                          >
+                            <span>
+                              (
+                              {
+                                statusInfoData?.unitUnitInfos?.[
+                                  n.unit?.toString() ?? ""
+                                ].name
+                              }
+                              )
+                            </span>
+                            <span className={"tooltip"}>
+                              <code className={"code"}>
+                                {n.amount}/{n.limit}
+                              </code>
+                              <span className={"tooltiptext"}>
+                                使用數/限制數
+                              </span>
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                {(statusData?.typesContainers?.[n.type?.toString() ?? ""]
+                  .length ?? 0) > 20 && (
+                  <div>
+                    只顯示前20個, 總數:
+                    {statusData?.typesContainers?.[n.type?.toString() ?? ""]
+                      .length ?? 0}
+                  </div>
                 )}
               </div>
             )

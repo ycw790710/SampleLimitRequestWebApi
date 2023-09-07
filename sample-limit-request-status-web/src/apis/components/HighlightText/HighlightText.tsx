@@ -1,12 +1,14 @@
 import React, { Fragment } from "react";
 import classes from "./HighlightText.module.css";
+import { escapeRegExp } from "./escapeRegExp";
 
 interface HighlightTextProps {
   text: string;
   keyword: string;
 }
 const HighlightText: React.FC<HighlightTextProps> = ({ text, keyword }) => {
-  const regex = new RegExp(`(${keyword})`, "gi");
+  const escapedKeyword = escapeRegExp(keyword);
+  const regex = new RegExp(`(${escapedKeyword})`, "gi");
   const parts = text.split(regex);
 
   return (
