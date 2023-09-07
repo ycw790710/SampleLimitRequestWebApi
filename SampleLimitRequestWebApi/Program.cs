@@ -1,9 +1,7 @@
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using RequestRateLimit.DependencyInjections;
-using SampleLimitRequestWebApi.RequestRateLimits.BackgroundServices;
-using SampleLimitRequestWebApi.RequestRateLimits.Middlewares;
+using RequestRateLimit.Middlewares;
 using System.Text;
 
 namespace SampleLimitRequestWebApi
@@ -53,11 +51,10 @@ namespace SampleLimitRequestWebApi
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddRequestRateLimits();
-            builder.Services.AddHostedService<RequestRateLimitStatusCacheBackgroundService>();
 
             var app = builder.Build();
 
-            app.UseMiddleware<RequestRateLimitMiddleware>();
+            app.UseRequestRateLimit();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -73,7 +70,7 @@ namespace SampleLimitRequestWebApi
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseMiddleware<UserRequestRateLimitMiddleware>();// after UseAuthentication
+            app.UseUserRequestRateLimit();
 
             app.MapControllers();
 

@@ -33,16 +33,8 @@ paths:
           description: Success
       tags:
       - Count
-  /api/LimitGlobal3PerSecond/Get_Normal:
+  /api/LimitAction3s/Get:
     get:
-      parameters:
-      - explode: true
-        in: query
-        name: data
-        required: false
-        schema:
-          type: string
-        style: form
       responses:
         "200":
           content:
@@ -57,17 +49,9 @@ paths:
                 type: string
           description: Success
       tags:
-      - LimitGlobal3PerSecond
-  /api/LimitGlobal3PerSecond5PerMinute/Get_Normal:
+      - LimitAction3s
+  /api/LimitAction3s5m/Get:
     get:
-      parameters:
-      - explode: true
-        in: query
-        name: data
-        required: false
-        schema:
-          type: string
-        style: form
       responses:
         "200":
           content:
@@ -82,17 +66,9 @@ paths:
                 type: string
           description: Success
       tags:
-      - LimitGlobal3PerSecond5PerMinute
-  /api/LimitGlobal3PerSecond5PerMinute4PerMinute/Get_Normal:
+      - LimitAction3s5m
+  /api/LimitAction3s5m100h/Get:
     get:
-      parameters:
-      - explode: true
-        in: query
-        name: data
-        required: false
-        schema:
-          type: string
-        style: form
       responses:
         "200":
           content:
@@ -107,7 +83,364 @@ paths:
                 type: string
           description: Success
       tags:
-      - LimitGlobal3PerSecond5PerMinute4PerMinute
+      - LimitAction3s5m100h
+  /api/LimitAction3s5m4m/Get:
+    get:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+          description: Success
+      tags:
+      - LimitAction3s5m4m
+  /api/LimitController3s/Get:
+    get:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+          description: Success
+      tags:
+      - LimitController3s
+  /api/LimitController3s5m/Get:
+    get:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+          description: Success
+      tags:
+      - LimitController3s5m
+  /api/LimitController3s5m100h/Get:
+    get:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+          description: Success
+      tags:
+      - LimitController3s5m100h
+  /api/LimitController3s5m4m/Get:
+    get:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+          description: Success
+      tags:
+      - LimitController3s5m4m
+  /api/LimitIpAction3s/Get:
+    get:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+          description: Success
+      tags:
+      - LimitIpAction3s
+  /api/LimitIpAction3s5m/Get:
+    get:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+          description: Success
+      tags:
+      - LimitIpAction3s5m
+  /api/LimitIpAction3s5m100h/Get:
+    get:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+          description: Success
+      tags:
+      - LimitIpAction3s5m100h
+  /api/LimitIpAction3s5m4m/Get:
+    get:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+          description: Success
+      tags:
+      - LimitIpAction3s5m4m
+  /api/LimitIpController3s/Get:
+    get:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+          description: Success
+      tags:
+      - LimitIpController3s
+  /api/LimitIpController3s5m/Get:
+    get:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+          description: Success
+      tags:
+      - LimitIpController3s5m
+  /api/LimitIpController3s5m100h/Get:
+    get:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+          description: Success
+      tags:
+      - LimitIpController3s5m100h
+  /api/LimitIpController3s5m4m/Get:
+    get:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+          description: Success
+      tags:
+      - LimitIpController3s5m4m
+  /api/LimitUserAction3s/Get:
+    get:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+          description: Success
+      tags:
+      - LimitUserAction3s
+  /api/LimitUserAction3s5m/Get:
+    get:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+          description: Success
+      tags:
+      - LimitUserAction3s5m
+  /api/LimitUserAction3s5m100h/Get:
+    get:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+          description: Success
+      tags:
+      - LimitUserAction3s5m100h
+  /api/LimitUserAction3s5m4m/Get:
+    get:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+          description: Success
+      tags:
+      - LimitUserAction3s5m4m
+  /api/LimitUserController3s/Get:
+    get:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+          description: Success
+      tags:
+      - LimitUserController3s
+  /api/LimitUserController3s5m/Get:
+    get:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+          description: Success
+      tags:
+      - LimitUserController3s5m
+  /api/LimitUserController3s5m100h/Get:
+    get:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+          description: Success
+      tags:
+      - LimitUserController3s5m100h
+  /api/LimitUserController3s5m4m/Get:
+    get:
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+          description: Success
+      tags:
+      - LimitUserController3s5m4m
   /api/RequestRateLimitStatus/GetStatus:
     post:
       responses:

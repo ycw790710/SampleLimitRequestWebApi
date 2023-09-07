@@ -34,7 +34,8 @@ namespace SampleLimitRequestTestCountConsole
 
         private static void Display()
         {
-            Task.Run(async() => {
+            Task.Run(async () =>
+            {
                 var httpClientFactory = host.Services.GetRequiredService<IHttpClientFactory>();
                 while (_alive)
                 {
@@ -50,7 +51,7 @@ namespace SampleLimitRequestTestCountConsole
                         Console.Clear();
                         Console.WriteLine("Web Api 基礎效能測試");
                         Console.WriteLine(DateTime.Now.ToString("更新時間 yyyy/MM/dd HH:mm:ss.fff"));
-                        Console.WriteLine(count +"/ per sec");
+                        Console.WriteLine(count + "/ per sec");
                     }
                     catch (Exception ex)
                     {

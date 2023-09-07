@@ -28,7 +28,8 @@ namespace SampleLimitRequestTestServiceConsole
             var requestRateLimitStatusService = new RequestRateLimitStatusService(
                 requestRateLimitStatusCacheService, requestRateLimitCacheService);
 
-            Task.Run(async () => {
+            Task.Run(async () =>
+            {
                 while (_alive)
                 {
                     requestRateLimitStatusService.UpdateStatuses();
@@ -70,7 +71,8 @@ namespace SampleLimitRequestTestServiceConsole
                 }
             }
 
-            Task.Run(() => {
+            Task.Run(() =>
+            {
 
                 var statusInfoJsonBytes = requestRateLimitStatusService.GetStatusInfoJsonBytes();
                 var statusInfoJson = Encoding.UTF8.GetString(statusInfoJsonBytes);
@@ -124,12 +126,12 @@ namespace SampleLimitRequestTestServiceConsole
                         foreach (var line in alllines)
                             Console.WriteLine(line);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         Debug.WriteLine(ex.ToString());
                     }
 
-                    SpinWait.SpinUntil(() => !_alive, 100);                    
+                    SpinWait.SpinUntil(() => !_alive, 100);
                 }
             });
         }
