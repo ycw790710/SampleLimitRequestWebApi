@@ -1,4 +1,6 @@
 ﻿
+using GlobalTimers.Services;
+
 namespace RequestRateLimit.Services;
 
 public class RequestRateLimitCacheService : IRequestRateLimitCacheService
@@ -13,9 +15,11 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
     private readonly IReadOnlyList<ConcurrentQueue<(RequestRateLimitType type, string key, TimeSpan ExpiredTime)>> _waitingExpiredQueues;
 
     private readonly IRequestRateLimitStatusCacheService _requestRateLimitStatusCacheService;
+    private readonly IGlobalTimerService _globalTimerService;
 
     public RequestRateLimitCacheService(
-        IRequestRateLimitStatusCacheService requestRateLimitStatusCacheService)
+        IRequestRateLimitStatusCacheService requestRateLimitStatusCacheService,
+        IGlobalTimerService globalTimerService)
     {
         var caches = new ConcurrentDictionary<string, RequestRateLimitCacheContainter>[LimitTypeLength];
         var lock_waitingExpiredQueues = new object[LimitTypeLength];
@@ -35,6 +39,7 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
         _waitingExpiredQueues = waitingExpiredQueues;
 
         _requestRateLimitStatusCacheService = requestRateLimitStatusCacheService;
+        this._globalTimerService = globalTimerService;
     }
 
     private int GetCacheIndex(RequestRateLimitType limitType)
@@ -55,7 +60,7 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
         var cache = _caches[GetCacheIndex(limitType)];
 
         if (!cache.ContainsKey(key))
-            cache.TryAdd(key, new(key));
+            cache.TryAdd(key, new(key, _globalTimerService));
         var container = cache[key];
         var valid = container.Valid(unit, limit, out var expiredTime);
 
@@ -74,14 +79,14 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
         var waitingExpiredQueue = _waitingExpiredQueues[waitingExpiredQueuesIndex];
         while (waitingExpiredQueue.Count > 0 &&
             waitingExpiredQueue.TryPeek(out var expiredInfo) &&
-            expiredInfo.ExpiredTime < GlobalTimer.NowTimeSpan())
+            expiredInfo.ExpiredTime < _globalTimerService.NowTimeSpan())
         {
             var got = false;
             lock (lock_waitingExpiredQueue)
             {
                 if (waitingExpiredQueue.Count > 0 &&
                     waitingExpiredQueue.TryPeek(out expiredInfo) &&
-                    expiredInfo.ExpiredTime < GlobalTimer.NowTimeSpan() &&
+                    expiredInfo.ExpiredTime < _globalTimerService.NowTimeSpan() &&
                     waitingExpiredQueue.TryDequeue(out expiredInfo))
                     got = true;
             }
@@ -89,7 +94,7 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
             {
                 var cache = _caches[GetCacheIndex(expiredInfo.type)];
                 if (cache.TryGetValue(expiredInfo.key, out var container) &&
-                    container.ExpiredTime < GlobalTimer.NowTimeSpan() &&
+                    container.ExpiredTime < _globalTimerService.NowTimeSpan() &&
                     cache.TryRemove(expiredInfo.key, out container) &&
                     container != null)
                 {
@@ -282,14 +287,16 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
 
         private readonly IReadOnlyList<object> _lockWaitingExpiredItems_queues;
         private readonly IReadOnlyList<ConcurrentQueue<TimeSpan>> _waiting_expiredItems_queues;
+        private readonly IGlobalTimerService _globalTimerService;
 
         public string Key { get; private set; }
         public TimeSpan ExpiredTime { get; private set; }
 
-        public RequestRateLimitCacheContainter(string key)
+        public RequestRateLimitCacheContainter(string key,
+        IGlobalTimerService globalTimerService)
         {
             Key = key;
-
+            this._globalTimerService = globalTimerService;
             var itemsLength = UnitCount;
             var lockItems = new object[itemsLength];
             var lockWaitingExpiredItems_queues = new object[itemsLength];
@@ -306,7 +313,7 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
             _lockWaitingExpiredItems_queues = lockWaitingExpiredItems_queues;
             _waiting_expiredItems_queues = waiting_expiredItems_queues;
 
-            ExpiredTime = GlobalTimer.NowTimeSpan();
+            ExpiredTime = _globalTimerService.NowTimeSpan();
         }
 
         public bool Valid(RequestRateLimitPerTimeUnit unit, int newLimit, out TimeSpan expiredTime)
@@ -321,7 +328,7 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
             {
                 if (_items[idx] == null)
                 {
-                    _items[idx] = new(newLimit, unit);
+                    _items[idx] = new(newLimit, unit, _globalTimerService);
                 }
                 expiredTime = _items[idx].Enter();
                 valid = _items[idx].Valid();
@@ -341,14 +348,14 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
                 return;
             while (waiting_expiredItems_queue.Count > 0 &&
                 waiting_expiredItems_queue.TryPeek(out var expiredTime) &&
-                expiredTime < GlobalTimer.NowTimeSpan())
+                expiredTime < _globalTimerService.NowTimeSpan())
             {
                 var got = false;
                 lock (_lockWaitingExpiredItems_queues[idx])
                 {
                     if (waiting_expiredItems_queue.Count > 0 &&
                         waiting_expiredItems_queue.TryPeek(out expiredTime) &&
-                        expiredTime < GlobalTimer.NowTimeSpan() &&
+                        expiredTime < _globalTimerService.NowTimeSpan() &&
                         waiting_expiredItems_queue.TryDequeue(out expiredTime))
                         got = true;
                 }
@@ -379,16 +386,20 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
 
     class RequestRateLimitCacheContainterItem
     {
+        private readonly IGlobalTimerService _globalTimerService;
+
         public int Limit { get; private set; }
         public int Amount { get; private set; }
         public RequestRateLimitPerTimeUnit Unit { get; private set; }
         public TimeSpan ExpiredTime { get; private set; }
 
-        public RequestRateLimitCacheContainterItem(int limit, RequestRateLimitPerTimeUnit unit)
+        public RequestRateLimitCacheContainterItem(int limit, RequestRateLimitPerTimeUnit unit,
+        IGlobalTimerService globalTimerService)
         {
             Limit = limit;
             Amount = 0;
             Unit = unit;
+            this._globalTimerService = globalTimerService;
             ExpiredTime = GetExpiredTime(unit);
         }
 
@@ -421,7 +432,7 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
                 expiredMilliseconds = 3600 * 1000;
             else
                 throw new Exception("Miss mapping enum");
-            return GlobalTimer.AddMillisecondsForNowTimeSpan(expiredMilliseconds);
+            return _globalTimerService.AddMillisecondsForNowTimeSpan(expiredMilliseconds);
         }
     }
 }

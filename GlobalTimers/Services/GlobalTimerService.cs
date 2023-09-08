@@ -1,14 +1,11 @@
 ﻿using System.Diagnostics;
 
-namespace CodeExtensions;
+namespace GlobalTimers.Services;
 
-public class GlobalTimerService
+public class GlobalTimerService : IGlobalTimerService
 {
-    private TimeSpan _offset;
-
     public GlobalTimerService()
     {
-        _offset = TimeSpan.Zero;
     }
 
     public TimeSpan NowTimeSpan()

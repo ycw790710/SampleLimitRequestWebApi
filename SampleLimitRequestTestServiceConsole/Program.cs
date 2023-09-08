@@ -1,4 +1,5 @@
-﻿using RequestRateLimit.Components;
+﻿using GlobalTimers.Services;
+using RequestRateLimit.Components;
 using RequestRateLimit.Dtos;
 using RequestRateLimit.Services;
 using System.Diagnostics;
@@ -22,8 +23,10 @@ namespace SampleLimitRequestTestServiceConsole
         }
         private static void TestServicePerformance()
         {
+            var globalTimerService = new GlobalTimerService();
             var requestRateLimitStatusCacheService = new RequestRateLimitStatusCacheService();
-            var requestRateLimitCacheService = new RequestRateLimitCacheService(requestRateLimitStatusCacheService);
+            var requestRateLimitCacheService = new RequestRateLimitCacheService(requestRateLimitStatusCacheService,
+                globalTimerService);
             var requestRateLimitService = new RequestRateLimitService(requestRateLimitCacheService);
             var requestRateLimitStatusService = new RequestRateLimitStatusService(
                 requestRateLimitStatusCacheService, requestRateLimitCacheService);
