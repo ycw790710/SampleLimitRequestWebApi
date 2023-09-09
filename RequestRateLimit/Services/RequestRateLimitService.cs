@@ -9,14 +9,14 @@ public class RequestRateLimitService : IRequestRateLimitService
         _requestRateLimitCacheService = requestRateLimitCacheService;
     }
 
-    public bool IsRequestOverLimit(string httpMethod, MethodInfo methodInfo, TypeInfo typeInfo,
-        string controllerName, string actionName, IPAddress? remoteIpAddress,
+    public bool IsRequestOverLimit(string httpMethod, MethodInfo actionInfo, TypeInfo controllerInfo,
+        string controllerName, string actionName, string? remoteIpAddress,
         CancellationToken cancellationToken = default)
     {
         if (remoteIpAddress == null)
             return true;
 
-        return !_requestRateLimitCacheService.Valid(httpMethod, methodInfo, typeInfo, controllerName, actionName, remoteIpAddress);
+        return !_requestRateLimitCacheService.Valid(httpMethod, actionInfo, controllerInfo, controllerName, actionName, remoteIpAddress);
     }
 
     public bool IsUserRequestOverLimit(string httpMethod, MethodInfo methodInfo, TypeInfo typeInfo,

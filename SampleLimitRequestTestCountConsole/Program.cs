@@ -12,12 +12,14 @@ namespace SampleLimitRequestTestCountConsole
         static string apiUrl = $"api/Count/Get_Normal";
         static IHost host = null!;
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             var baseThread = 200;
             var addThread = (int)Math.Min(40, baseThread * 1.4);
             var totalThread = baseThread + addThread;
             ThreadPool.SetMinThreads(totalThread, totalThread);
+            Console.WriteLine("SetMinThreads Ready");
+
             host = new HostBuilder()
                 .ConfigureServices(services =>
                 {
@@ -25,11 +27,45 @@ namespace SampleLimitRequestTestCountConsole
                 })
                 .Build();
 
+            await WaitForApiToBeReady();
+
             Display();
             TestCount();
 
             while (Console.ReadKey().Key != ConsoleKey.Q)
                 ;
+        }
+
+        static async Task WaitForApiToBeReady()
+        {
+            var httpClientFactory = host.Services.GetRequiredService<IHttpClientFactory>();
+            var httpClient = httpClientFactory.CreateClient();
+            httpClient.BaseAddress = new Uri(_basePath);
+            Stopwatch sw = new();
+            sw.Start();
+            while (sw.Elapsed < new TimeSpan(0, 0, 30))
+            {
+                try
+                {
+                    var response = await httpClient.GetAsync("");
+                    if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                        break;
+                }
+                catch (HttpRequestException ex)
+                {
+                    var statusCode = ex.StatusCode;
+                    if (statusCode != null)
+                    {
+                        if (statusCode == System.Net.HttpStatusCode.NotFound)
+                            break;
+                        throw ex;
+                    }
+                }
+                Console.WriteLine("Wait Web Api...");
+
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            }
+            Console.WriteLine("Api Ready");
         }
 
         private static void Display()

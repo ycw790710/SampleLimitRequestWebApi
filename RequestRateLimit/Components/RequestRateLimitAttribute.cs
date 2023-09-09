@@ -16,5 +16,10 @@ public abstract class RequestRateLimitAttribute : Attribute, IRequestRateLimitAt
         Unit = unit;
     }
 
+    protected string GetPathKey(string httpMethod, string controllerName, string actionName)
+    {
+        return $"[{httpMethod}] [{controllerName}/{actionName}]";
+    }
+
     protected abstract (int MinTimes, int MaxTimes) GetExpectedTimes(RequestRateLimitPerTimeUnit unit);
 }

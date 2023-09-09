@@ -151,7 +151,8 @@ namespace SampleLimitRequestTestServiceConsole
                 try
                 {
                     requestRateLimitService.IsRequestOverLimit("GET",
-                        methodInfo, typeInfo, controllerName, actionName, ipAddress);
+                        methodInfo, typeInfo, controllerName, actionName,
+                        ipAddress?.ToString());
                 }
                 catch (Exception ex)
                 {
@@ -166,30 +167,30 @@ namespace SampleLimitRequestTestServiceConsole
 
     }
 
-    [GlobalRequestRateLimit(5000, RequestRateLimitPerTimeUnit.Seconds)]
+    [GlobalRequestRateLimit(20000, RequestRateLimitPerTimeUnit.Seconds)]
     class TestGlobalRequestRateLimit
     {
-        [GlobalRequestRateLimit(5000, RequestRateLimitPerTimeUnit.Seconds)]
+        [GlobalRequestRateLimit(20000, RequestRateLimitPerTimeUnit.Seconds)]
         public void TestAction() { }
-        [GlobalRequestRateLimit(5000, RequestRateLimitPerTimeUnit.Seconds)]
+        [GlobalRequestRateLimit(20000, RequestRateLimitPerTimeUnit.Seconds)]
         public void TestAction1() { }
-        [GlobalRequestRateLimit(5000, RequestRateLimitPerTimeUnit.Seconds)]
+        [GlobalRequestRateLimit(20000, RequestRateLimitPerTimeUnit.Seconds)]
         public void TestAction2() { }
-        [GlobalRequestRateLimit(5000, RequestRateLimitPerTimeUnit.Seconds)]
+        [GlobalRequestRateLimit(20000, RequestRateLimitPerTimeUnit.Seconds)]
         public void TestAction3() { }
-        [GlobalRequestRateLimit(5000, RequestRateLimitPerTimeUnit.Seconds)]
+        [GlobalRequestRateLimit(20000, RequestRateLimitPerTimeUnit.Seconds)]
         public void TestAction4() { }
-        [GlobalRequestRateLimit(5000, RequestRateLimitPerTimeUnit.Seconds)]
+        [GlobalRequestRateLimit(20000, RequestRateLimitPerTimeUnit.Seconds)]
         public void TestAction5() { }
-        [GlobalRequestRateLimit(5000, RequestRateLimitPerTimeUnit.Seconds)]
+        [GlobalRequestRateLimit(20000, RequestRateLimitPerTimeUnit.Seconds)]
         public void TestAction6() { }
-        [GlobalRequestRateLimit(5000, RequestRateLimitPerTimeUnit.Seconds)]
+        [GlobalRequestRateLimit(20000, RequestRateLimitPerTimeUnit.Seconds)]
         public void TestAction7() { }
-        [GlobalRequestRateLimit(5000, RequestRateLimitPerTimeUnit.Seconds)]
+        [GlobalRequestRateLimit(20000, RequestRateLimitPerTimeUnit.Seconds)]
         public void TestAction8() { }
-        [GlobalRequestRateLimit(5000, RequestRateLimitPerTimeUnit.Seconds)]
+        [GlobalRequestRateLimit(20000, RequestRateLimitPerTimeUnit.Seconds)]
         public void TestAction9() { }
-        [GlobalRequestRateLimit(5000, RequestRateLimitPerTimeUnit.Seconds)]
+        [GlobalRequestRateLimit(20000, RequestRateLimitPerTimeUnit.Seconds)]
         public void TestAction10() { }
     }
 

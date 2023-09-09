@@ -32,7 +32,8 @@ public class RequestRateLimitMiddleware
 
             isRequestOverLimit =
                 _requestRateLimitService.IsRequestOverLimit(httpMethod, methodInfo,
-                typeInfo, controllerName, actionName, context.Connection.RemoteIpAddress,
+                typeInfo, controllerName, actionName,
+                context.Connection.RemoteIpAddress?.ToString(),
                 requestAborted);
         }
 

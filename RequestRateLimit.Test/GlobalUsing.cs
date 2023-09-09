@@ -1,4 +1,5 @@
-﻿global using RequestRateLimit.Components;
+global using Microsoft.VisualStudio.TestTools.UnitTesting;
+global using RequestRateLimit.Components;
 global using RequestRateLimit.Dtos;
 global using RequestRateLimit.Services;
 global using System.Collections.Concurrent;

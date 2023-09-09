@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CodeExtensions\CodeExtensions.csproj" />
     <ProjectReference Include="..\GlobalTimers\GlobalTimers.csproj" />
   </ItemGroup>
 

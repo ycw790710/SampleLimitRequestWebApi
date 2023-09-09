@@ -170,15 +170,13 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
         }
     }
 
-    public bool Valid(string httpMethod, MethodInfo methodInfo, TypeInfo typeInfo,
-        string controllerName, string actionName, IPAddress remoteIpAddress)
+    public bool Valid(string httpMethod, MethodInfo actionInfo, TypeInfo controllerInfo,
+        string controllerName, string actionName, string remoteIpAddress)
     {
         var valid = true;
 
         var globalActionRequestRateLimits =
-            DistinctByMinLimitTimes(methodInfo
-            .GetCustomAttributes(typeof(GlobalRequestRateLimitAttribute), true)
-            .Select(n => (GlobalRequestRateLimitAttribute)n));
+            GetRequestRateLimitAttributes<GlobalRequestRateLimitAttribute>(actionInfo);
         foreach (var globalActionRequestRateLimit in globalActionRequestRateLimits)
         {
             var key = globalActionRequestRateLimit.GetKey(httpMethod, controllerName, actionName);
@@ -188,9 +186,7 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
         }
 
         var globalControllerRequestRateLimits =
-            DistinctByMinLimitTimes(typeInfo
-            .GetCustomAttributes(typeof(GlobalRequestRateLimitAttribute), true)
-            .Select(n => (GlobalRequestRateLimitAttribute)n));
+            GetRequestRateLimitAttributes<GlobalRequestRateLimitAttribute>(controllerInfo);
         foreach (var globalControllerRequestRateLimit in globalControllerRequestRateLimits)
         {
             var key = globalControllerRequestRateLimit.GetKey(httpMethod, controllerName, "");
@@ -200,9 +196,7 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
         }
 
         var ipActionRequestRateLimits =
-            DistinctByMinLimitTimes(methodInfo
-            .GetCustomAttributes(typeof(IpRequestRateLimitAttribute), true)
-            .Select(n => (IpRequestRateLimitAttribute)n));
+            GetRequestRateLimitAttributes<IpRequestRateLimitAttribute>(actionInfo);
         foreach (var ipActionRequestRateLimit in ipActionRequestRateLimits)
         {
             var key = ipActionRequestRateLimit.GetKey(httpMethod, controllerName, actionName, remoteIpAddress);
@@ -212,9 +206,7 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
         }
 
         var ipControllerRequestRateLimits =
-            DistinctByMinLimitTimes(typeInfo
-            .GetCustomAttributes(typeof(IpRequestRateLimitAttribute), true)
-            .Select(n => (IpRequestRateLimitAttribute)n));
+            GetRequestRateLimitAttributes<IpRequestRateLimitAttribute>(controllerInfo);
         foreach (var ipControllerRequestRateLimit in ipControllerRequestRateLimits)
         {
             var key = ipControllerRequestRateLimit.GetKey(httpMethod, controllerName, "", remoteIpAddress);
@@ -226,15 +218,12 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
         return valid;
     }
 
-    public bool ValidUser(string httpMethod, MethodInfo methodInfo, TypeInfo typeInfo,
+    public bool ValidUser(string httpMethod, MethodInfo actionInfo, TypeInfo controllerInfo,
         string controllerName, string actionName, long userId)
     {
         var valid = true;
-
         var userActionRequestRateLimits =
-            DistinctByMinLimitTimes(methodInfo
-            .GetCustomAttributes(typeof(UserRequestRateLimitAttribute), true)
-            .Select(n => (UserRequestRateLimitAttribute)n));
+            GetRequestRateLimitAttributes<UserRequestRateLimitAttribute>(actionInfo);
         foreach (var userActionRequestRateLimit in userActionRequestRateLimits)
         {
             var key = userActionRequestRateLimit.GetKey(httpMethod, controllerName, actionName, userId);
@@ -244,9 +233,7 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
         }
 
         var userControllerRequestRateLimits =
-            DistinctByMinLimitTimes(typeInfo
-            .GetCustomAttributes(typeof(UserRequestRateLimitAttribute), true)
-            .Select(n => (UserRequestRateLimitAttribute)n));
+            GetRequestRateLimitAttributes<UserRequestRateLimitAttribute>(controllerInfo);
         foreach (var userControllerRequestRateLimit in userControllerRequestRateLimits)
         {
             var key = userControllerRequestRateLimit.GetKey(httpMethod, controllerName, "", userId);
@@ -256,6 +243,14 @@ public class RequestRateLimitCacheService : IRequestRateLimitCacheService
         }
 
         return valid;
+    }
+
+    private IList<T> GetRequestRateLimitAttributes<T>(MemberInfo memberInfo)
+        where T : RequestRateLimitAttribute
+    {
+        return DistinctByMinLimitTimes(memberInfo
+                    .GetCustomAttributes(typeof(T), true)
+                    .Select(n => (T)n));
     }
 
     private IList<T> DistinctByMinLimitTimes<T>(IEnumerable<T> items)

@@ -10,7 +10,7 @@ public class GlobalRequestRateLimitAttribute : RequestRateLimitAttribute
 
     public string GetKey(string httpMethod, string controllerName, string actionName)
     {
-        return $"[{httpMethod}] [{controllerName}/{actionName}]";
+        return GetPathKey(httpMethod, controllerName, actionName);
     }
 
     protected override (int MinTimes, int MaxTimes) GetExpectedTimes(RequestRateLimitPerTimeUnit inputPerTimeUnit)
