@@ -447,7 +447,7 @@ namespace Org.OpenAPITools.Client
             {
                 ClientCertificates = configuration.ClientCertificates,
                 CookieContainer = cookies,
-                MaxTimeout = configuration.Timeout,
+                //MaxTimeout = configuration.Timeout,
                 Proxy = configuration.Proxy,
                 UserAgent = configuration.UserAgent,
                 UseDefaultCredentials = configuration.UseDefaultCredentials,
@@ -544,7 +544,7 @@ namespace Org.OpenAPITools.Client
             var clientOptions = new RestClientOptions(baseUrl)
             {
                 ClientCertificates = configuration.ClientCertificates,
-                MaxTimeout = configuration.Timeout,
+                //MaxTimeout = configuration.Timeout,
                 Proxy = configuration.Proxy,
                 UserAgent = configuration.UserAgent,
                 UseDefaultCredentials = configuration.UseDefaultCredentials
