@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
+    <!-- Pin the patched 2.x release for GHSA-v5pm-xwqc-g5wc, pulled in by Swashbuckle. -->
+    <PackageReference Include="Microsoft.OpenApi" Version="2.7.5" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.0.1" />
   </ItemGroup>
 
